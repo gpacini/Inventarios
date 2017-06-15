@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jstl/core">
+<f:view contentType="text/html">
+
+	<h:head>
+		<title><ui:insert name="pageTitle">Serinse</ui:insert></title>
+		<script>var baseUrl = '<h:outputText value="#{controllerGlobal.baseUrl}" />'; </script>
+		<meta charset="UTF-8" />
+		<link rel="stylesheet"
+			href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+		<script
+			src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+			type="text/javascript"></script>
+
+		<h:outputScript name="base.js" target="head" />
+		<style>
+.ui-dialog-title {
+	padding: 10px 0;
+	font-size: 130%;
+}
+</style>
+	</h:head>
+	<h:body>
+		<f:facet name="last">
+			<h:outputStylesheet name="base.css" />
+		</f:facet>
+		<div id="dialog" class="hidden" title="Mensaje">
+			<p class="message"></p>
+		</div>
+		<div id="show-photo-dialog" class="hidden" title="Mensaje">
+			<img class='image' src='' style="width: 100%;" />
+			<p class="message"></p>
+		</div>
+		<div id="dialog-YesNo" class="hidden" title="Mensaje">
+			<p class="message"></p>
+		</div>
+		<div id="upload-photo-dialog" class="hidden" title="Subir Foto">
+			<form class='form' id='photo-upload-form'>
+				<div class="form-group">
+					<label for="name">Archivo para subir:</label> <input type='file'
+						name='photo' id='photo-photo' class='form-control' />
+				</div>
+				<div class="form-group">
+					<label for="name">Titulo:</label> <input type='text' name='title'
+						id='photo-title' class='form-control' />
+				</div>
+				<div class="form-group">
+					<label for="description">Descripcion:</label> <input type='text'
+						name='description' id='photo-description' class='form-control' />
+				</div>
+				<input type="hidden" name="fkId" id="photo-fkId" /> <input
+					type="hidden" name="table" id="photo-table" /> <input
+					type="hidden" name="directory" id="photo-directory" />
+			</form>
+		</div>
+		<div id="overlay" class="hidden"
+			style="position: absolute; width: 100%; height: 100%; background: rgba(1, 1, 1, 0.5);">
+			<img class='overlay-image'
+				src="http://interno.serinse.com/serinse/resources/images/loading.svg" />
+		</div>
+		<div id="wrapper" style="width: 100%;">
+			<div id='menu-wrapper' style="width: 100%;">
+			<h:form>
+				<nav class="navbar navbar-default">
+					<div class="container-fluid  col-md-8 col-md-offset-2">
+						<!-- Brand and toggle get grouped for better mobile display -->
+						<div class="navbar-header">
+							<button type="button" class="navbar-toggle collapsed"
+								data-toggle="collapse"
+								data-target="#bs-example-navbar-collapse-1"
+								aria-expanded="false">
+								<span class="sr-only">Toggle navigation</span> <span
+									class="icon-bar"></span> <span class="icon-bar"></span> <span
+									class="icon-bar"></span>
+							</button>
+							<c:choose>
+								<c:when test="${controllerUserSession.loggedIn}">
+									<a class="navbar-brand"
+										href="#{controllerUserSession.homeLink}"><h:graphicImage
+											name="images/logoHeaderXs.png" /></a>
+								</c:when>
+								<c:otherwise>
+									<a class="navbar-brand"><h:graphicImage
+											name="images/logoHeaderXs.png" /></a>
+								</c:otherwise>
+							</c:choose>
+						</div>
+
+						<!-- Collect the nav links, forms, and other content for toggling -->
+						<div class="collapse navbar-collapse"
+							id="bs-example-navbar-collapse-1">
+							<ul class="nav navbar-nav">
+								<c:if test="#{controllerMenu.renderInventoryMenu}">
+									<li><h:outputLink
+											value='#{controllerMenu.getLink(controllerMenu.inventory)}'>Inventarios</h:outputLink></li>
+								</c:if>
+								<c:if test="#{controllerMenu.renderInventoryAdminMenu}">
+									<li><h:outputLink
+											value='#{controllerMenu.getLink(controllerMenu.requisitions)}'>Requisiciones</h:outputLink></li>
+									<li><h:outputLink
+											value='#{controllerMenu.getLink(controllerMenu.multipleClientInventory)}'>Todo Inventario</h:outputLink></li>
+								</c:if>
+							</ul>
+							<c:if test="#{controllerUserSession.loggedIn}">
+								<ul class="nav navbar-nav navbar-right">
+									<li>
+									<h:commandLink
+											action='#{controllerLogin.logout}' value="Cerrar Sesion" />
+									</li>
+								</ul>
+							</c:if>
+						</div>
+						<!-- /.navbar-collapse -->
+					</div>
+					<!-- /.container-fluid -->
+				</nav>
+				</h:form>
+			</div>
+			<c:choose>
+				<c:when test="#{controllerMenu.renderAdminMenu}">
+					<p:panel styleClass="col-md-12">
+						<p:menubar model="#{controllerMenu.leftMenuModel}" />
+					</p:panel>
+					<p:panel styleClass="col-md-12">
+						<ui:insert name="content" />
+					</p:panel>
+				</c:when>
+				<c:otherwise>
+					<p:panel styleClass="col-md-12">
+						<ui:insert name="content" />
+					</p:panel>
+				</c:otherwise>
+			</c:choose>
+		</div>
+	</h:body>
+</f:view>
+</html>

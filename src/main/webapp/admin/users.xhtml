@@ -1,0 +1,97 @@
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<ui:define name="content">
+	
+	<style>
+		.onlyDataDataList .ui-widget-content{
+			border: none;
+			background-color: rgba(0,0,0,0);
+			list-style-type: none;
+		}
+		.onlyDataDataList .ui-widget-content .ui-datalist-data{
+			list-style-type: none;
+		}
+	</style>
+
+		<h:form id="usersForm">
+			<p:messages autoUpdate="true" closable="true"></p:messages>
+
+			<p:dataTable var="user" value="#{usersController.users}"
+				id="usersDataTable" paginator="true" rows="20" lazy="true"
+				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+				tableStyle="table-layout: auto;" rowsPerPageTemplate="20,50,100">
+				<p:column headerText="ID">
+					<h:outputText value="#{user.id}" />
+				</p:column>
+				<p:column headerText="Nombre de Usuario">
+					<h:outputText value="#{user.username}" />
+				</p:column>
+				<p:column headerText="Email">
+					<h:outputText value="#{user.email}" />
+				</p:column>
+				<p:column headerText="Rol">
+					<h:outputText value="#{user.role.roleName}" />
+				</p:column>
+				<p:column headerText="Acciones">
+					<p:commandButton value="Editar"
+						actionListener="#{usersController.editUser(user)}"></p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton value="Agregar Usuario"
+						actionListener="#{usersController.addUser()}" />
+				</f:facet>
+			</p:dataTable>
+
+			<p:dialog id="userEditionDialog" widgetVar="userEditionDialog">
+				<p:panelGrid>
+					<p:row>
+						<p:column>
+							<h:outputLabel value="Usuario" />
+						</p:column>
+						<p:column>
+							<h:inputText value="#{usersController.userToEdit.username}" />
+						</p:column>
+
+
+						<p:column>
+							<h:outputLabel value="Contrasena" />
+						</p:column>
+						<p:column>
+							<p:password value="#{usersController.password}" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<h:outputLabel value="Email" />
+						</p:column>
+						<p:column>
+							<h:inputText value="#{usersController.userToEdit.email}" />
+						</p:column>
+
+						<p:column>
+							<h:outputLabel value="" />
+						</p:column>
+						<p:column>
+							<h:outputLabel value="" />
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+				<h:outputLabel value="Roles" />
+				<p:selectOneRadio value="#{usersController.selectedRole}">
+					<f:selectItems value="#{usersController.roles}" var="role"
+						itemLabel="#{role.roleName}" itemValue="#{role.roleName}" />
+				</p:selectOneRadio>
+				<p:commandButton actionListener="#{usersController.saveUser}"
+					process="@form:userEditionDialog" value="Guardar" />
+
+			</p:dialog>
+		</h:form>
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,164 @@
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+	<ui:define name="content">
+	
+	<h:form id="deliveriesForm">
+		<p:messages autoUpdate="true" />
+		<h3>Salidas de Bodega</h3>
+		<p:dataTable var="delivery" value="#{deliveriesController.outDeliveries}" widgetVar="outDeliveriesTable"
+				paginator="true" rows="10" id="outDeliveriesDataTable" lazy="true"
+				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+				tableStyle="table-layout: auto;"
+				rowsPerPageTemplate="10,20,50,100">
+				<f:facet name="header">
+					<p:commandButton
+						actionListener="#{deliveriesController.getInventoryLink()}"
+						value="Abrir Inventario" styleClass="btn btn-primary" />
+
+					<h:commandLink styleClass="btn btn-default">
+						Exportar Excel
+						<p:dataExporter type="xls" target="outDeliveriesDataTable"
+							fileName="Salidas" />
+					</h:commandLink>
+
+					<h:commandLink styleClass="btn btn-default">
+						Exportar PDF
+						<p:dataExporter type="pdf" target="outDeliveriesDataTable"
+							fileName="Salidas" />
+					</h:commandLink>
+				</f:facet>
+				<f:facet name="footer">
+					<p:commandButton onclick="PF('outDeliveriesTable').clearFilters();"
+						value="Limpiar Filtros" process="deliveriesForm:outDeliveriesDataTable" />
+				</f:facet>
+				<p:column headerText="Codigo Producto" 
+				filterBy="#{delivery.product.code}" 
+				sortBy="#{delivery.product.code}">
+					<h:outputText value="#{delivery.product.code}" />
+				</p:column>
+				<p:column headerText="Marca"
+				filterBy="#{delivery.product.brand}" 
+				sortBy="#{delivery.product.brand}">
+					<h:outputText value="#{delivery.product.brand}" />
+				</p:column>
+				<p:column headerText="Producto"
+				filterBy="#{delivery.product.material}" 
+				sortBy="#{delivery.product.material}">
+					<h:outputText value="#{delivery.product.material}" />
+				</p:column>
+				<p:column headerText="Quien Solicito"
+				filterBy="#{delivery.whoAsked}" 
+				sortBy="#{delivery.whoAsked}">
+					<h:outputText value="#{delivery.whoAsked}" />
+				</p:column>
+				<p:column headerText="Despachador">
+					<h:outputText value="#{delivery.whoReceived}" />
+				</p:column>
+				<p:column headerText="Fecha de Solicitud"
+				sortBy="#{delivery.askDate}">
+					<h:outputText value="#{delivery.askDate}" />
+				</p:column>
+				<p:column headerText="Lead Time">
+					<h:outputText value="#{delivery.leadTime}" />
+				</p:column>
+				<p:column headerText="Fecha Entrega"
+				sortBy="#{delivery.deliveryDate}">
+					<h:outputText value="#{delivery.deliveryDate}" />
+				</p:column>
+				<p:column headerText="Punto Entrega">
+					<h:outputText value="#{delivery.deliveryPoint}" />
+				</p:column>
+				<p:column headerText="Ciudad"
+				filterBy="#{delivery.cities}" 
+				sortBy="#{delivery.cities}">
+					<h:outputText value="#{delivery.cities}" />
+				</p:column>
+				<p:column headerText="Observacion">
+					<h:outputText value="#{delivery.status}" />
+				</p:column>
+				<p:column headerText="Despaching"
+				filterBy="#{delivery.storehouse.name}" 
+				sortBy="#{delivery.storehouse.name}">
+					<h:outputText value="#{delivery.storehouse.name}" />
+				</p:column>
+				<p:column headerText="Cantidad">
+					<h:outputText value="#{delivery.quantity}" />
+				</p:column>
+			</p:dataTable>
+			
+		<h3>Ingresos a Bodega</h3>
+		<p:dataTable var="delivery" value="#{deliveriesController.inDeliveries}" widgetVar="inDeliveriesTable"
+				paginator="true" rows="10" id="inDeliveriesDataTable" lazy="true"
+				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+				tableStyle="table-layout: auto;"
+				rowsPerPageTemplate="10,20,50,100">
+				<f:facet name="header">
+
+					<p:commandButton
+						actionListener="#{deliveriesController.getInventoryLink()}"
+						value="Abrir Inventario" styleClass="btn btn-primary" />
+
+					<h:commandLink styleClass="btn btn-default">
+						Exportar Excel
+						<p:dataExporter type="xls" target="inDeliveriesDataTable"
+							fileName="Salidas" />
+					</h:commandLink>
+
+					<h:commandLink styleClass="btn btn-default">
+						Exportar PDF
+						<p:dataExporter type="pdf" target="inDeliveriesDataTable"
+							fileName="Salidas" />
+					</h:commandLink>
+				</f:facet>
+				<f:facet name="footer">
+					<p:commandButton onclick="PF('inDeliveriesTable').clearFilters();"
+						value="Limpiar Filtros" process="deliveriesForm:inDeliveriesDataTable" />
+				</f:facet>
+				<p:column headerText="Codigo Producto"
+				filterBy="#{delivery.product.code}" 
+				sortBy="#{delivery.product.code}">
+					<h:outputText value="#{delivery.product.code}" />
+				</p:column>
+				<p:column headerText="Marca"
+				filterBy="#{delivery.product.brand}" 
+				sortBy="#{delivery.product.brand}">
+					<h:outputText value="#{delivery.product.brand}" />
+				</p:column>
+				<p:column headerText="Producto"
+				filterBy="#{delivery.product.material}" 
+				sortBy="#{delivery.product.material}">
+					<h:outputText value="#{delivery.product.material}" />
+				</p:column>
+				<p:column headerText="Quien Envio"
+				filterBy="#{delivery.whoAsked}" 
+				sortBy="#{delivery.whoAsked}">
+					<h:outputText value="#{delivery.whoAsked}" />
+				</p:column>
+				<p:column headerText="Quien Recibio">
+					<h:outputText value="#{delivery.whoReceived}" />
+				</p:column>
+				<p:column headerText="Fecha de Recibo"
+				sortBy="#{delivery.askDate}">
+					<h:outputText value="#{delivery.askDate}" />
+				</p:column>
+				<p:column headerText="Bodega"
+				filterBy="#{delivery.storehouse.name}" 
+				sortBy="#{delivery.storehouse.name}">
+					<h:outputText value="#{delivery.storehouse.name}" />
+				</p:column>
+				<p:column headerText="Cantidad">
+					<h:outputText value="#{delivery.quantity}" />
+				</p:column>
+				<p:column headerText="Dias en Bodega">
+					<h:outputText value="#{deliveriesController.getDaysInStorehouse(delivery)}" />
+				</p:column>
+			</p:dataTable>
+	</h:form>
+	</ui:define>
+</ui:composition>
