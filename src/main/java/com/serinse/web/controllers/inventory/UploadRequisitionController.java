@@ -34,6 +34,7 @@ import com.serinse.pers.entity.inventory.ProductByStorehouse;
 import com.serinse.pers.entity.inventory.Requisition;
 import com.serinse.pers.entity.inventory.Storehouse;
 import com.serinse.pers.entity.projectParameter.ProjectParameter;
+import com.serinse.web.session.UserSessionBean;
 
 @Named("uploadRequisitionController")
 @ViewScoped
@@ -61,6 +62,9 @@ public class UploadRequisitionController implements Serializable{
 	
 	@Inject
 	ProductBean productBean;
+	
+	@Inject
+	UserSessionBean userSessionBean;
 	
 	private DeliveryType selectedType;
 	private Storehouse storehouse;
@@ -154,12 +158,14 @@ public class UploadRequisitionController implements Serializable{
 		currentConsecutive = Integer.parseInt(consecutive.getValue()) + 1;
 		sConsecutive += String.format("%06d", currentConsecutive);
 		
+		requisition.setUser(userSessionBean.getUsername());
 		requisition.setConsecutive(sConsecutive);
 		requisition.setPhysicalRequisition(physicalRequisition);
 		requisitionBean.save(requisition);
 		
 		for( Delivery delivery : deliveriesToSave ){
 			delivery.setRequisition(requisition);
+			delivery.setCreationDate(new Date());
 			deliveryBean.save(delivery);
 		}
 		for( ProductByStorehouse pbs : productByStorehouseToSave ){

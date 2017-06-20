@@ -3,8 +3,10 @@ package com.serinse.web.controllers.inventory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -21,6 +23,7 @@ import com.serinse.ejb.impl.inventory.DeliveryBean;
 import com.serinse.ejb.impl.inventory.InventoryBean;
 import com.serinse.ejb.impl.inventory.RequisitionBean;
 import com.serinse.ejb.impl.inventory.StorehouseBean;
+import com.serinse.pers.entity.adm.Role;
 import com.serinse.pers.entity.inventory.Delivery;
 import com.serinse.pers.entity.inventory.DeliveryType;
 import com.serinse.pers.entity.inventory.Inventory;
@@ -164,6 +167,13 @@ public class SearchRequisitionController implements Serializable {
 		System.out.println("Numero de requisiciones encontradas: " + requisitionsFound.getRowCount());
 		
 		RequestContext.getCurrentInstance().update("requisitionForm:requisitionDataTable");
+	}
+	
+	public boolean hasAdminPermission(){
+		Set<String> roles = new HashSet<>();
+		roles.add(Role.ADMIN_ROLE);
+		roles.add(Role.PROGRAMMING_ROLE);
+		return userSessionBean.hasAnyRole(roles);
 	}
 
 	public void searchRequisition() {

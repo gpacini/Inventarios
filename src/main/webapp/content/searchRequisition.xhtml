@@ -266,6 +266,20 @@
 								value="#{searchRequisitionController.firstDelivery.status}" />
 						</p:column>
 					</p:row>
+					<p:row rendered="#{searchRequisitionController.requisitionFound and searchRequisitionController.hasAdminPermission()}">
+						<p:column>
+							<h:outputLabel value="Creado Por:" />
+						</p:column>
+						<p:column>
+							<h:outputText value="#{searchRequisitionController.requisition.user}" />
+						</p:column>
+						<p:column>
+							<h:outputLabel value="Fecha de Creacion:" />
+						</p:column>
+						<p:column>
+							<h:outputText value="#{searchRequisitionController.firstDelivery.creationDate}" />
+						</p:column>
+					</p:row>
 				</p:panelGrid>
 				<p:dataTable var="delivery" scrollable="true" scrollRows="10"
 					rendered="#{searchRequisitionController.requisitionFound}"

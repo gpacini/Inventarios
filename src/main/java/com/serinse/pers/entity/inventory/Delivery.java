@@ -59,6 +59,9 @@ public class Delivery {
 	@Column( name = "quantity")
 	private Double quantity;
 	
+	@Column( name = "creation_date")
+	private Date creationDate;
+	
 	@ManyToOne
 	@JoinColumn(name = "id_product_by_storehouse_fk", referencedColumnName = "ID")
 	private ProductByStorehouse productByStorehouse;
@@ -189,6 +192,14 @@ public class Delivery {
 
 	public void setProductByStorehouse(ProductByStorehouse productByStorehouse) {
 		this.productByStorehouse = productByStorehouse;
+	}
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
 	}
 	
 }

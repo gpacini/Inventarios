@@ -17,7 +17,6 @@ import com.serinse.pers.entity.adm.Permission;
 import com.serinse.pers.entity.adm.Role;
 import com.serinse.pers.entity.adm.User;
 import com.serinse.pers.entity.client.Client;
-import com.serinse.pers.entity.inventory.Inventory;
 import com.serinse.web.app.SessionManager;
 
 @SessionScoped

@@ -22,6 +22,9 @@ public class Requisition {
 	@Column( name = "physical_requisition")
 	private String physicalRequisition;
 	
+	@Column( name = "user")
+	private String user;
+	
 	public Long getId() {
 		return id;
 	}
@@ -45,4 +48,13 @@ public class Requisition {
 	public void setPhysicalRequisition(String physicalRequisition) {
 		this.physicalRequisition = physicalRequisition;
 	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+	
 }

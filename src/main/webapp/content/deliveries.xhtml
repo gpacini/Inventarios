@@ -90,6 +90,12 @@
 				<p:column headerText="Cantidad">
 					<h:outputText value="#{delivery.quantity}" />
 				</p:column>
+				<p:column headerText="#Requisicion" rendered="#{deliveriesController.hasEditPermission()}">
+					<h:outputText value="#{delivery.requisition.consecutive}" />
+				</p:column>
+				<p:column headerText="Fecha Creacion" rendered="#{deliveriesController.hasAdminPermission()}">
+					<h:outputText value="#{delivery.creationDate}" />
+				</p:column>
 			</p:dataTable>
 			
 		<h3>Ingresos a Bodega</h3>
@@ -157,6 +163,12 @@
 				</p:column>
 				<p:column headerText="Dias en Bodega">
 					<h:outputText value="#{deliveriesController.getDaysInStorehouse(delivery)}" />
+				</p:column>
+				<p:column headerText="#Requisicion" rendered="#{deliveriesController.hasEditPermission()}">
+					<h:outputText value="#{delivery.requisition.consecutive}" />
+				</p:column>
+				<p:column headerText="Fecha Creacion" rendered="#{deliveriesController.hasAdminPermission()}">
+					<h:outputText value="#{delivery.creationDate}" />
 				</p:column>
 			</p:dataTable>
 	</h:form>

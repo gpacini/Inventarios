@@ -117,6 +117,13 @@ public class DeliveriesController implements Serializable{
 		return userSessionBean.hasAnyRole(roles);
 	}
 	
+	public boolean hasAdminPermission(){
+		Set<String> roles = new HashSet<>();
+		roles.add(Role.ADMIN_ROLE);
+		roles.add(Role.PROGRAMMING_ROLE);
+		return userSessionBean.hasAnyRole(roles);
+	}
+	
 	public int getDaysInStorehouse(Delivery delivery){
 		Long time = delivery.getAskDate().getTime() - (new Date()).getTime();
 		time *= time < 0 ? -1 : 1;
