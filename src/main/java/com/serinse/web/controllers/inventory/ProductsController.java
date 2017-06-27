@@ -2,12 +2,14 @@ package com.serinse.web.controllers.inventory;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -80,9 +82,12 @@ public class ProductsController implements Serializable {
 	private Map<Storehouse, Double> currentQuantities;
 	private int action;
 	private String changeReason;
+	private List<String> currentProductPositions;
 	
 	private List<String> availableCodes;
 	private String selectedCode;
+	
+	private Boolean showProductDetail;
 
 	@PostConstruct
 	public void init() {
@@ -135,6 +140,26 @@ public class ProductsController implements Serializable {
 				products.setRowCount(productBean.count(newMap, inventory));
 				return productBean.getResultList(first, pageSize, sortField, sortOrder, newMap, inventory);
 			}
+			
+			@Override
+			public Product getRowData(String rowKey){
+				@SuppressWarnings("unchecked")
+				List<Product> products = (List<Product>) getWrappedData();
+			    Long value = Long.valueOf(rowKey);
+
+			    for (Product product : products) {
+			        if (product.getId().equals(value)) {
+			            return product;
+			        }
+			    }
+
+			    return null;
+			}
+			
+			@Override
+			public Object getRowKey(Product product) {
+			    return product != null ? product.getId() : null;
+			}
 		};
 		products.setRowCount(productBean.count(new HashMap<String, String>(), inventory));
 
@@ -148,6 +173,16 @@ public class ProductsController implements Serializable {
 
 	public LazyDataModel<Product> getProducts() {
 		return products;
+	}
+	
+	public void productSelected(){
+		showProductDetail = true;
+		
+		RequestContext.getCurrentInstance().execute("PF('productDetailsDialog').show();");
+	}
+	
+	public void productUnselected(){
+		showProductDetail = false;
 	}
 	
 	public void selectAvailableCode(String code){
@@ -229,8 +264,15 @@ public class ProductsController implements Serializable {
 			if (thisDiff > currentDiff)
 				currentDiff = thisDiff;
 		}
-		if( currentDiff == -1L )
-			return "90 o mas";
+		if( currentDiff == -1L ){
+			SimpleDateFormat format = new SimpleDateFormat("YYYY-MM-dd");
+			try{
+				Date febDate = format.parse("2017-02-01");
+				currentDiff = (new Date()).getTime() - febDate.getTime();
+			} catch(Exception e){
+				return "150";
+			}
+		}
 		return "" + TimeUnit.DAYS.convert(currentDiff, TimeUnit.MILLISECONDS);
 	}
 
@@ -404,6 +446,39 @@ public class ProductsController implements Serializable {
 	public void setAction(int action) {
 		this.action = action;
 	}
+	
+	public String getPositionsOnRackString(){
+		productToEdit.getPositions().size();
+		String finalString = "";
+		for( String position : productToEdit.getPositions() ){
+			finalString += " - " + position;
+		}
+		finalString = finalString.replaceFirst(" - ", "");
+		return finalString;
+	}
+	
+	public void calculatePositionsForProduct(){
+		currentProductPositions = new ArrayList<String>(productToEdit.getPositions());
+		for( int i = currentProductPositions.size() ; i < 9 ; i++ ){
+			currentProductPositions.add("");
+		}
+	}
+	
+	public List<String> getPositionsForProduct(){
+		return currentProductPositions;
+	}
+	
+	public void savePositions(){
+		Set<String> positions = new HashSet<>();
+		for( String position : currentProductPositions ){
+			if( position.equals("") || position.equals(" ") ){
+				continue;
+			}
+			positions.add(position);
+		}
+		productToEdit.setPositions(positions);
+		productBean.save(productToEdit);
+	}
 
 	public void showImage(Product p) {
 		productToEdit = p;
@@ -459,4 +534,14 @@ public class ProductsController implements Serializable {
 		}
 		return tCost;
 	}
+
+	public Boolean getShowProductDetail() {
+		return showProductDetail;
+	}
+
+	public void setShowProductDetail(Boolean showProductDetail) {
+		this.showProductDetail = showProductDetail;
+	}
+	
+	
 }

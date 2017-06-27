@@ -35,6 +35,9 @@ public class Inventory implements Serializable{
 	
 	@Column( name = "unit_cost_activated")
 	private Boolean unitCost;
+
+	@Column( name = "rack_positions_activated")
+	private Boolean rackPositions;
 	
 	@OneToMany( mappedBy = "inventory", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Product> products = new ArrayList<Product>();
@@ -117,4 +120,14 @@ public class Inventory implements Serializable{
 	public void setUnitCost(Boolean unitCost) {
 		this.unitCost = unitCost;
 	}
+
+	public Boolean getRackPositions() {
+		return rackPositions;
+	}
+
+	public void setRackPositions(Boolean rackPositions) {
+		this.rackPositions = rackPositions;
+	}
+	
+	
 }

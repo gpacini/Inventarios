@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -56,6 +57,9 @@ public class Product implements Serializable{
 
 	@Column( name = "row_3")
 	private String row3;
+	
+	@Column
+	private Set<String> positions;
 	
 	@Transient
 	private List<ProductByStorehouse> productByStorehouses = new ArrayList<>();
@@ -255,6 +259,14 @@ public class Product implements Serializable{
 
 	public void setActive(Boolean active) {
 		this.active = active;
+	}
+
+	public Set<String> getPositions() {
+		return positions;
+	}
+
+	public void setPositions(Set<String> positions) {
+		this.positions = positions;
 	}
 	
 }
