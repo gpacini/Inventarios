@@ -45,7 +45,7 @@
 							fileName="inventario" />
 					</h:commandLink>
 
-					<h:commandLink styleClass="btn btn-default">
+					<h:commandLink styleClass="btn btn-default" >
 						Exportar PDF
 						<p:dataExporter type="pdf" target="productsDataTable"
 							fileName="inventario" />
@@ -90,6 +90,10 @@
 						<f:convertNumber type="currency" currencySymbol="$" />
 					</h:outputText>
 				</p:column>
+				<p:column headerText="Posicion"
+					rendered="#{productsController.inventory.rackPositions}">
+					<h:outputText value="#{productsController.getPositionsOnRackString(product)}" />
+				</p:column>
 				<p:column headerText="Foto" exportable="false">
 					<h:commandButton
 						rendered="#{productsController.isPhotoSet(product)}"
@@ -109,113 +113,115 @@
 						rendered="#{not productsController.isPhotoSet(product) and not productsController.renderActions}" />
 				</p:column>
 				<p:column headerText="Acciones" exportable="false"
-					rendered="#{productsController.renderAdminActions}">
-					<p:commandButton value="Actualizar"
-						actionListener="#{productsController.showUpdateProduct(product)}" />
-					<p:commandButton value="Eliminar"
+					rendered="#{productsController.renderActions}">
+					<p:commandButton value="Actualizar" rendered="#{productsController.renderAdminActions}"
+						actionListener="#{productsController.showUpdateProduct(product)}"
+						process="@this" />
+					<p:commandButton value="Eliminar" rendered="#{productsController.renderAdminActions}"
 						actionListener="#{productsController.deleteProduct(product)}"
+						process="@this" update="@none" />
+					<p:commandButton value="Asignar Posiciones" rendered="#{productsController.inventory.rackPositions}"
+						actionListener="#{productsController.selectProductForPositions(product)}"
 						process="@this" update="@none" />
 				</p:column>
 				<p:column headerText="Movimientos" exportable="false">
 					<p:commandLink
 						action="#{productsController.getProductDeliveriesLink(product)}"
-						value="Ver Movimientos" styleClass="btn btn-default" />
+						value="Ver Movimientos" styleClass="btn btn-default" process="@this" />
 				</p:column>
 			</p:dataTable>
 
-			<p:remoteCommand name="hideDetails" action="#{productsController.productUnselected()}"
-				global="true" />
+			<p:remoteCommand name="hideDetails"
+				action="#{productsController.productUnselected()}" global="true" />
 
 			<p:dialog widgetVar="productDetailsDialog" id="productDetailsDialog"
-				rendered="#{productsController.showProductDetail}" onHide="hideDetails">
-				<p:panelGrid>
-					<p:row>
-						<p:column>
-							<p:graphicImage style="max-width:150px; max-height:200px;"
-								value="../uploadedImages/#{productsController.productToEdit.photo.directory}/#{productsController.productToEdit.photo.name}" />
-						</p:column>
-					</p:row>
-					<p:row>
-						<p:column>
-							<p:panelGrid>
-								<p:row>
-									<p:column>
-										<h:ouputLabel value="Material" />
-									</p:column>
-									<p:column colspan="3">
-										<h:ouputText
-											value="#{productsController.productToEdit.material}" />
-									</p:column>
-								</p:row>
-								<p:row>
-									<p:column>
-										<h:ouputLabel value="Codigo" />
-									</p:column>
-									<p:column>
-										<h:ouputText value="#{productsController.productToEdit.code}" />
-									</p:column>
-									<p:column>
-										<h:ouputLabel value="Marca" />
-									</p:column>
-									<p:column>
-										<h:ouputText value="#{productsController.productToEdit.brand}" />
-									</p:column>
-								</p:row>
-								<p:row>
-									<c:forEach var="storehouse"
-										items="#{productsController.storehouses}">
-										<p:column>
-											<h:ouputLabel value="#{storehouse.name}" />
-										</p:column>
-										<p:column>
-											<h:outputText
-												value="#{productsController.getQuantityFor(storehouse, productsController.productToEdit)}" />
-										</p:column>
-										<p:column>
-											<h:ouputLabel value="Dias Bodega" />
-										</p:column>
-										<p:column>
-											<h:outputText
-												value="#{productsController.getDaysInStorehouseFor(storehouse, productsController.productToEdit)}" />
-										</p:column>
-									</c:forEach>
-								</p:row>
-								<p:row rendered="#{productsController.inventory.unitCost}">
-									<p:column>
-										<h:ouputLabel value="Costo Unitario" />
-									</p:column>
-									<p:column>
-										<h:ouputText
-											value="#{productsController.productToEdit.unitCost}" />
-									</p:column>
-									<p:column>
-										<h:ouputLabel value="Costo Total" />
-									</p:column>
-									<p:column>
-										<h:ouputText
-											value="#{productsController.getTotalCost(productsController.productToEdit)}" />
-									</p:column>
-								</p:row>
-								<p:row rendered="#{productsController.inventory.rackPositions}">
-									<p:column>
-										<h:ouputLabel value="Posiciones en Rack: " />
-									</p:column>
-									<p:column colspan="2">
-										<h:ouputText
-											value="#{productsController.positionsOnRackString}" />
-									</p:column>
-									<p:column>
-										<p:commandButton value="Editar posiciones"
-											rendered="#{productsController.renderActions}"
-											onclick="PF('positionsDialog').show();" />
-									</p:column>
-								</p:row>
-							</p:panelGrid>
-						</p:column>
-					</p:row>
-				</p:panelGrid>
+				rendered="#{productsController.showProductDetail}" header="Producto: #{productsController.productToEdit.code}"
+				onHide="hideDetails" width="680">
+				<p:panel style="width:150px; float:left;">
+					<p:graphicImage style="max-width:150px; max-height:200px;"
+						value="../uploadedImages/#{productsController.productToEdit.photo.directory}/#{productsController.productToEdit.photo.name}" />
+				</p:panel>
+				<p:panel style="width:500px; float:left;">
+					<p:panelGrid>
+						<p:row>
+							<p:column>
+								<h:outputLabel value="Material" />
+							</p:column>
+							<p:column colspan="3">
+								<h:outputText
+									value="#{productsController.productToEdit.material}" />
+							</p:column>
+						</p:row>
+						<p:row>
+							<p:column>
+								<h:outputLabel value="Codigo" />
+							</p:column>
+							<p:column>
+								<h:outputText value="#{productsController.productToEdit.code}" />
+							</p:column>
+							<p:column>
+								<h:outputLabel value="Marca" />
+							</p:column>
+							<p:column>
+								<h:outputText value="#{productsController.productToEdit.brand}" />
+							</p:column>
+						</p:row>
+						<c:forEach var="storehouse"
+							items="#{productsController.storehouses}">
+							<p:row>
+								<p:column>
+									<h:outputLabel value="#{storehouse.name}" />
+								</p:column>
+								<p:column>
+									<h:outputText
+										value="#{productsController.getQuantityFor(storehouse, productsController.productToEdit)}" />
+								</p:column>
+								<p:column>
+									<h:outputLabel value="Dias Bodega" />
+								</p:column>
+								<p:column>
+									<h:outputText
+										value="#{productsController.getDaysInStorehouseFor(storehouse, productsController.productToEdit)}" />
+								</p:column>
+							</p:row>
+						</c:forEach>
+						<p:row rendered="#{productsController.inventory.unitCost}">
+							<p:column>
+								<h:outputLabel value="Costo Unitario" />
+							</p:column>
+							<p:column>
+								<h:outputText
+									value="#{productsController.productToEdit.unitCost}" />
+							</p:column>
+							<p:column>
+								<h:outputLabel value="Costo Total" />
+							</p:column>
+							<p:column>
+								<h:outputText
+									value="#{productsController.getTotalCost(productsController.productToEdit)}" />
+							</p:column>
+						</p:row>
+						<p:row rendered="#{productsController.inventory.rackPositions}">
+							<p:column>
+								<h:outputLabel value="Posiciones en Rack: " />
+							</p:column>
+							<p:column colspan="2">
+								<h:outputText
+									value="#{productsController.positionsOnRackString}" />
+							</p:column>
+							<p:column>
+								<p:commandButton value="Editar posiciones"
+									rendered="#{productsController.renderActions}"
+									actionListener="#{productsController.calculatePositionsForProduct()}" 
+									update="@form"
+									process="@this"/>
+							</p:column>
+						</p:row>
+					</p:panelGrid>
+				</p:panel>
 			</p:dialog>
-			<p:dialog widgetVar="positionsDialog" id="positionsDialog"
+			<p:dialog widgetVar="positionsDialog" id="positionsDialog" 
+			rendered="#{productsController.inventory.rackPositions and productsController.renderActions and productsController.renderProductPositions}"
 				header="Posiciones en Rack" modal="true">
 				<p:panelGrid>
 					<p:row>
@@ -226,43 +232,71 @@
 					<p:row>
 						<p:column>
 							<h:inputText
-								value="#{productsController.positionsForProduct.get(0)}" />
+								value="#{productsController.currentProductPositions[0]}" />
 						</p:column>
 						<p:column>
 							<h:inputText
-								value="#{productsController.positionsForProduct.get(1)}" />
+								value="#{productsController.currentProductPositions[1]}" />
 						</p:column>
 						<p:column>
 							<h:inputText
-								value="#{productsController.positionsForProduct.get(2)}" />
-						</p:column>
-					</p:row>
-					<p:row>
-						<p:column>
-							<h:inputText
-								value="#{productsController.positionsForProduct.get(3)}" />
-						</p:column>
-						<p:column>
-							<h:inputText
-								value="#{productsController.positionsForProduct.get(4)}" />
-						</p:column>
-						<p:column>
-							<h:inputText
-								value="#{productsController.positionsForProduct.get(5)}" />
+								value="#{productsController.currentProductPositions[2]}" />
 						</p:column>
 					</p:row>
 					<p:row>
 						<p:column>
 							<h:inputText
-								value="#{productsController.positionsForProduct.get(6)}" />
+								value="#{productsController.currentProductPositions[3]}" />
 						</p:column>
 						<p:column>
 							<h:inputText
-								value="#{productsController.positionsForProduct.get(7)}" />
+								value="#{productsController.currentProductPositions[4]}" />
 						</p:column>
 						<p:column>
 							<h:inputText
-								value="#{productsController.positionsForProduct.get(8)}" />
+								value="#{productsController.currentProductPositions[5]}" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<h:inputText
+								value="#{productsController.currentProductPositions[6]}" />
+						</p:column>
+						<p:column>
+							<h:inputText
+								value="#{productsController.currentProductPositions[7]}" />
+						</p:column>
+						<p:column>
+							<h:inputText
+								value="#{productsController.currentProductPositions[8]}" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<h:inputText
+								value="#{productsController.currentProductPositions[9]}" />
+						</p:column>
+						<p:column>
+							<h:inputText
+								value="#{productsController.currentProductPositions[10]}" />
+						</p:column>
+						<p:column>
+							<h:inputText
+								value="#{productsController.currentProductPositions[11]}" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<h:inputText
+								value="#{productsController.currentProductPositions[12]}" />
+						</p:column>
+						<p:column>
+							<h:inputText
+								value="#{productsController.currentProductPositions[13]}" />
+						</p:column>
+						<p:column>
+							<h:inputText
+								value="#{productsController.currentProductPositions[14]}" />
 						</p:column>
 					</p:row>
 					<p:row>
@@ -294,6 +328,7 @@
 				</p:panelGrid>
 			</p:dialog>
 			<p:dialog widgetVar="uploadPhotoDialog" id="uploadPhotoDialog"
+				rendered="#{productsController.renderActions}"
 				header="Subir foto" minHeight="400" minWidth="400" modal="true">
 				<p:fileUpload
 					fileUploadListener="#{photoUploadController.uploadFile}"
@@ -301,6 +336,7 @@
 				</p:fileUpload>
 			</p:dialog>
 			<p:dialog widgetVar="updateProductDialog" id="updateProductDialog"
+				rendered="#{productsController.renderActions and productsController.showEditProductDialog}"
 				header="#{productsController.updateDialogCommand}" minHeight="400"
 				minWidth="400" modal="true">
 				<p:panelGrid>

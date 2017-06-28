@@ -17,7 +17,7 @@ public class ProductsTimer {
 	@Inject ProductBean productBean;
 	@Inject StorehouseBean storehouseBean;
 	
-	@Schedule(hour="*/12")
+	@Schedule(hour="*/1")
 	public void timer(){
 		List<Product> products = productBean.findAllById();
 		List<Storehouse> storehouses = storehouseBean.findAllById();
@@ -25,10 +25,12 @@ public class ProductsTimer {
 			for( Storehouse sh : storehouses ){
 				if( p.getQuantities().get(sh).getQuantity() > 0 ){
 					p.setActive(true);
+					productBean.update(p);
 					continue productsFor;
 				}
 			}
 			p.setActive( false );
+			productBean.update(p);
 		}
 	}
 	

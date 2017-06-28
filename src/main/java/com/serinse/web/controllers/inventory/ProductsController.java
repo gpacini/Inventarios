@@ -88,6 +88,8 @@ public class ProductsController implements Serializable {
 	private String selectedCode;
 	
 	private Boolean showProductDetail;
+	private Boolean renderProductPositions;
+	private Boolean showEditProductDialog;
 
 	@PostConstruct
 	public void init() {
@@ -165,6 +167,8 @@ public class ProductsController implements Serializable {
 
 		productToEdit = new Product();
 		action = ADD;
+		renderProductPositions = false;
+		showProductDetail = false;
 	}
 
 	public boolean isPhotoSet(Product p) {
@@ -177,7 +181,7 @@ public class ProductsController implements Serializable {
 	
 	public void productSelected(){
 		showProductDetail = true;
-		
+		productToEdit = productBean.findByCode(productToEdit.getCode());
 		RequestContext.getCurrentInstance().execute("PF('productDetailsDialog').show();");
 	}
 	
@@ -257,7 +261,6 @@ public class ProductsController implements Serializable {
 		if( !(pbs.getQuantity() > 0))
 			return "N/A";
 		long currentDiff = -1L;
-		System.out.println("Producto: " + p.getCode());
 		List<Delivery> deliveries = deliveryBean.findLastByProductAndTypeAndStorehouse(p.getId(), DeliveryType.ENTREGA, sh.getId());
 		for (Delivery delivery : deliveries) {
 			long thisDiff = (new Date()).getTime() - delivery.getDeliveryDate().getTime();
@@ -330,6 +333,7 @@ public class ProductsController implements Serializable {
 				return;
 			}
 			productBean.save(productToEdit);
+			showEditProductDialog = false;
 			RequestContext.getCurrentInstance().update("productsForm");
 		} else if (action == UPDATE) {
 			if( selectedCode != null ){
@@ -376,6 +380,8 @@ public class ProductsController implements Serializable {
 				}
 			}
 			selectedCode = null;
+			showEditProductDialog = false;
+			RequestContext.getCurrentInstance().update("productsForm");
 		}
 	}
 	
@@ -406,7 +412,7 @@ public class ProductsController implements Serializable {
 		action = ADD;
 		productToEdit = new Product();
 		selectedCode = null;
-		RequestContext.getCurrentInstance().update("productsForm:updateProductDialog");
+		RequestContext.getCurrentInstance().update("productsForm");
 		RequestContext.getCurrentInstance().execute("PF('updateProductDialog').show();");
 	}
 
@@ -418,8 +424,10 @@ public class ProductsController implements Serializable {
 		for (ProductByStorehouse pbs : p.getQuantities().values()) {
 			currentQuantities.put(pbs.getStorehouse(), pbs.getQuantity());
 		}
+		
+		showEditProductDialog = true;
 
-		RequestContext.getCurrentInstance().update("productsForm:updateProductDialog");
+		RequestContext.getCurrentInstance().update("productsForm");
 		RequestContext.getCurrentInstance().execute("PF('updateProductDialog').show();");
 	}
 
@@ -448,7 +456,6 @@ public class ProductsController implements Serializable {
 	}
 	
 	public String getPositionsOnRackString(){
-		productToEdit.getPositions().size();
 		String finalString = "";
 		for( String position : productToEdit.getPositions() ){
 			finalString += " - " + position;
@@ -457,15 +464,24 @@ public class ProductsController implements Serializable {
 		return finalString;
 	}
 	
-	public void calculatePositionsForProduct(){
-		currentProductPositions = new ArrayList<String>(productToEdit.getPositions());
-		for( int i = currentProductPositions.size() ; i < 9 ; i++ ){
-			currentProductPositions.add("");
+	public String getPositionsOnRackString(Product p){
+		String finalString = "";
+		for( String position : p.getPositions() ){
+			finalString += " - " + position;
 		}
+		finalString = finalString.replaceFirst(" - ", "");
+		return finalString;
 	}
 	
-	public List<String> getPositionsForProduct(){
-		return currentProductPositions;
+	public void calculatePositionsForProduct(){
+		currentProductPositions = new ArrayList<String>(productToEdit.getPositions());
+		for( int i = productToEdit.getPositions().size() ; i < 15 ; i++ ){
+			currentProductPositions.add("");
+		}
+		renderProductPositions = true;
+		
+		RequestContext.getCurrentInstance().update("productsForm");
+		RequestContext.getCurrentInstance().execute("PF('positionsDialog').show();");
 	}
 	
 	public void savePositions(){
@@ -477,7 +493,14 @@ public class ProductsController implements Serializable {
 			positions.add(position);
 		}
 		productToEdit.setPositions(positions);
-		productBean.save(productToEdit);
+		productBean.update(productToEdit);
+		
+		RequestContext.getCurrentInstance().update("productsForm:productsDataTable");
+	}
+	
+	public void selectProductForPositions(Product product){
+		productToEdit = productBean.findByCode(product.getCode());
+		calculatePositionsForProduct();
 	}
 
 	public void showImage(Product p) {
@@ -542,6 +565,28 @@ public class ProductsController implements Serializable {
 	public void setShowProductDetail(Boolean showProductDetail) {
 		this.showProductDetail = showProductDetail;
 	}
-	
-	
+
+	public List<String> getCurrentProductPositions() {
+		return currentProductPositions;
+	}
+
+	public void setCurrentProductPositions(List<String> currentProductPositions) {
+		this.currentProductPositions = currentProductPositions;
+	}
+
+	public Boolean getRenderProductPositions() {
+		return renderProductPositions;
+	}
+
+	public void setRenderProductPositions(Boolean renderProductPositions) {
+		this.renderProductPositions = renderProductPositions;
+	}
+
+	public Boolean getShowEditProductDialog() {
+		return showEditProductDialog;
+	}
+
+	public void setShowEditProductDialog(Boolean showEditProductDialog) {
+		this.showEditProductDialog = showEditProductDialog;
+	}
 }

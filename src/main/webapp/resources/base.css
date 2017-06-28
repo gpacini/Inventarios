@@ -9,3 +9,8 @@
 .ui-widget.ui-widget-content{
 	border-width:0;
 }
+
+.modal-body {
+	max-height: 100%;
+    overflow-y: auto;
+}

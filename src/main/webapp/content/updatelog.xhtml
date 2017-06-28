@@ -9,7 +9,7 @@
 	<ui:define name="content">
 	
 	<p:dataTable id="logsDataTable" lazy="true" paginator="true" widgetVar="logsDataTable"
-		var="log" value="#{updateLogService.updateLogs}" sortBy="#{log.date}" rows="10" >
+		var="log" value="#{updateLogService.updateLogs}" sortBy="#{log.date}" sortOrder="descending" rows="10" >
 		<p:column headerText="Accion" >
 			<h:outputText value="#{log.action}" />
 		</p:column>

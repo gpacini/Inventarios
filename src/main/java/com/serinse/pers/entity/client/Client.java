@@ -1,6 +1,5 @@
 package com.serinse.pers.entity.client;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -12,8 +11,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
-import com.serinse.pers.entity.adm.User;
 
 @Entity
 @Table(name = "SER_CLIENT")
@@ -29,6 +26,9 @@ public class Client {
 	
 	@Column(name = "description")
 	private String description;
+	
+	@OneToMany(fetch=FetchType.EAGER, mappedBy="client", cascade=CascadeType.ALL, orphanRemoval=true)
+	private List<ClientByUser> users;
 
 	public Long getId() {
 		return id;
@@ -52,6 +52,14 @@ public class Client {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public List<ClientByUser> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<ClientByUser> users) {
+		this.users = users;
 	}
 
 	@Override

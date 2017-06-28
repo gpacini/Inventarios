@@ -8,7 +8,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -58,7 +60,7 @@ public class Product implements Serializable{
 	@Column( name = "row_3")
 	private String row3;
 	
-	@Column
+	@ElementCollection(fetch=FetchType.EAGER)
 	private Set<String> positions;
 	
 	@Transient

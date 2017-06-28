@@ -74,6 +74,10 @@ public class ProductBean extends AbstractBean<Product>{
 		Product product = daojpaProduct.findByCode(code);
 		if( product == null ) return null;
 		calculateProductQuantities(product);
+		Photo photo = photoBean.findByTableAndId(Constants.products_photos_table, product.getId());
+		if (photo != null) {
+			product.setPhoto(photo);
+		}
 		return product;
 	}
 	

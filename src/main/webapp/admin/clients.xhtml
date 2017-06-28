@@ -7,30 +7,36 @@
 	xmlns:c="http://java.sun.com/jsp/jstl/core">
 
 	<ui:define name="content">
-	<style>
-		.onlyDataDataList .ui-widget-content{
-			border: none;
-			background-color: rgba(0,0,0,0);
-			list-style-type: none;
-		}
-		.onlyDataDataList .ui-widget-content .ui-datalist-data{
-			list-style-type: none;
-		}
-		
-		.selection{
-			width:100%;
-		}
-		.selection td{
-			float: left;
-			width: 16%;
-		}
-	</style>
+		<style>
+.onlyDataDataList .ui-widget-content {
+	border: none;
+	background-color: rgba(0, 0, 0, 0);
+	list-style-type: none;
+}
+
+.onlyDataDataList .ui-widget-content .ui-datalist-data {
+	list-style-type: none;
+}
+
+.selection {
+	width: 100%;
+}
+
+.selection td {
+	float: left;
+	width: 16%;
+}
+</style>
 		<h:form id="clientsForm">
 			<p:messages autoUpdate="true" />
 			<p:dataTable var="client" value="#{clientsController.clients}"
 				id="clientsDataTable" paginator="true" rows="20" lazy="true"
+				selectionMode="single" selection="#{clientsController.clientToEdit}"
 				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
 				tableStyle="table-layout: auto;" rowsPerPageTemplate="20,50,100">
+				<p:ajax event="rowSelect" process="clientsForm:clientsDataTable"
+					listener="#{clientsController.clientSelected()}" update=":dialogForm" 
+					oncomplete="PF('clientDetailsDialog').show();" />
 				<p:column headerText="ID">
 					<h:outputText value="#{client.id}" />
 				</p:column>
@@ -41,31 +47,26 @@
 					<h:outputText value="#{client.description}" />
 				</p:column>
 				<p:column headerText="Usuarios">
-					<p:dataList var="user" value="#{clientsController.getClientsUsers(client)}" styleClass="onlyDataDataList">
+					<p:dataList var="user"
+						value="#{clientsController.getClientsUsers(client)}"
+						styleClass="onlyDataDataList">
 						#{user.username}
 					</p:dataList>
 				</p:column>
-				<p:column headerText="Acciones">
-					<p:commandButton value="Editar" icon="ui-icon-pencil"
-						actionListener="#{clientsController.editClient(client)}" process="@this" update="@none" />
-						<h:outputLabel value="&#160;&#160;|&#160;&#160;" />
-					<p:commandButton value="Editar Usuarios"
-						actionListener="#{clientsController.addUsers(client)}" process="@this" update="@none" />
-						<h:outputLabel value="&#160;&#160;|&#160;&#160;" />
-					<p:commandButton value="Activar Costos" rendered="#{not clientsController.getCostsActivated(client)}"
-						actionListener="#{clientsController.activateCosts(client)}" process="@this" update="@form:clientsDataTable" />
-					<p:commandButton value="Desactivar Costos" rendered="#{clientsController.getCostsActivated(client)}"
-						actionListener="#{clientsController.deactivateCosts(client)}" process="@this" update="@form:clientsDataTable" />
-				</p:column>
-
 				<f:facet name="footer">
 					<p:commandButton value="Agregar Cliente"
-						actionListener="#{clientsController.addClient()}" process="@this" update="@none" />
+						actionListener="#{clientsController.addClient()}" process="@this"
+						update=":dialogForm" oncomplete="PF('clientDetailsDialog').show();" />
 				</f:facet>
 			</p:dataTable>
-			
-			<p:dialog widgetVar="clientEditionDialog" id="clientEditionDialog" >
-				<p:panelGrid>
+		</h:form>
+		<h:form id="dialogForm">
+			<p:dialog widgetVar="clientDetailsDialog" id="clientDetailsDialog"
+				rendered="#{clientsController.showClientDetails}" modal="true"
+				header="Cliente #{clientsController.clientToEdit.name}" closable="true"
+				onHide="resetForms">
+				<p:messages autoUpdate="true" />
+				<p:panelGrid id="clientDetailPanel">
 					<p:row>
 						<p:column>
 							<h:outputLabel value="Nombre" />
@@ -73,26 +74,62 @@
 						<p:column>
 							<h:inputText value="#{clientsController.clientToEdit.name}" />
 						</p:column>
-
-
 						<p:column>
 							<h:outputLabel value="Descripcion" />
 						</p:column>
 						<p:column>
-							<p:inputText value="#{clientsController.clientToEdit.description}"  />
+							<p:inputText
+								value="#{clientsController.clientToEdit.description}" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column colspan="4">
+							<h:outputLabel value="Usuarios:" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column colspan="4">
+							<p:pickList id="usersPickList" value="#{clientsController.users}"
+								var="user" itemValue="#{user}" itemLabel="#{user}"
+								showCheckbox="true" responsive="true" filterMatchMode="contains">
+								<f:facet name="sourceCaption">Disponibles</f:facet>
+								<f:facet name="targetCaption">Con Acceso</f:facet>
+							</p:pickList>
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column colspan="4">
+							<h:outputLabel value="Columnas Adicionales:" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:selectBooleanCheckbox
+								value="#{clientsController.inventoryToEdit.unitCost}"
+								itemLabel="Costo Unitario" />
+						</p:column>
+						<p:column>
+							<p:selectBooleanCheckbox
+								value="#{clientsController.inventoryToEdit.rackPositions}"
+								itemLabel="Posiciones En Rack" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:commandButton value="Guardar"
+								actionListener="#{clientsController.saveClient()}"
+								process="@form:clientDetailPanel"
+								update="dialogForm :clientsForm:clientsDataTable" />
+						</p:column>
+						<p:column>
+							<p:commandButton value="Salir" actionListener="#{clientsController.reset()}"
+								onclick="PF('clientDetailsDialog').hide();" process="@this"
+								update="@form" />
 						</p:column>
 					</p:row>
 				</p:panelGrid>
-				<p:commandButton value="Guardar Cliente" actionListener="#{clientsController.saveClient()}" process="@form:clientEditionDialog" update="@none" />
 			</p:dialog>
-			
-			<p:dialog widgetVar="userSelectionDialog" id="userSelectionDialog">
-				<h:outputLabel value="Seleccione los usuarios que pueden ver el cliente: " />
-				<p:selectManyCheckbox styleClass="selection" value="#{clientsController.selectedUsers}">
-					<f:selectItems var="user" value="#{clientsController.posibleUsers}" itemValue="#{user.username}" itemLabel="#{user.username}" />
-				</p:selectManyCheckbox>
-				<p:commandButton actionListener="#{clientsController.saveSelectedUsers()}" value="Guardar Cambios" process="@form:userSelectionDialog" update="@none" />
-			</p:dialog>
+			<p:remoteCommand actionListener="#{clientsController.reset()}" name="resetForms"></p:remoteCommand>
 		</h:form>
 	</ui:define>
 </ui:composition>

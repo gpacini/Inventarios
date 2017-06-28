@@ -27,6 +27,13 @@ public class ClientByUser {
 	@ManyToOne
 	@JoinColumn(name="id_user_fk")
 	private User user;
+	
+	public ClientByUser(){}
+	
+	public ClientByUser(User user, Client client){
+		this.user = user;
+		this.client = client;
+	}
 
 	public Long getId() {
 		return id;
