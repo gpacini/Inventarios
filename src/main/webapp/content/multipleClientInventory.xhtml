@@ -40,6 +40,21 @@
 						</p:selectOneRadio>
 					</p:column>
 				</p:row>
+				<p:row>
+					<p:column><h:outputLabel value="Adicionales" /></p:column>
+					<p:column>
+						<p:selectBooleanCheckbox itemLabel="Incluir Dias En Bodega?" value="#{multipleClientInventory.daysStorehouse}" />
+					</p:column>
+					<p:column>
+						<p:selectBooleanCheckbox itemLabel="Incluir Inactivos?" value="#{multipleClientInventory.inactive}" />
+					</p:column>
+					<p:column>
+						<p:selectBooleanCheckbox itemLabel="Incluir Costos?" value="#{multipleClientInventory.costs}" />
+					</p:column>
+					<p:column>
+						<p:selectBooleanCheckbox itemLabel="Incluir Posiciones en Rack?" value="#{multipleClientInventory.rackPositions}" />
+					</p:column>
+				</p:row>
 
 
 				<p:row>
@@ -54,12 +69,11 @@
 			</p:panelGrid>
 			<p:dataTable var="product"
 				value="#{multipleClientInventory.products}" paginator="true"
-				rows="10" id="productsDataTable" 
+				rows="10" id="productsDataTable" lazy="true"
 				tableStyle="table-layout: auto;"
 				rendered="#{multipleClientInventory.displayDatatable}"
-				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
 				rowsPerPageLabel="Productos Por Pagina:"
-				rowsPerPageTemplate="10,20,50,100">
+				rowsPerPageTemplate="10,20,50">
 				<f:facet name="header">
 					<h:commandLink styleClass="btn btn-default">
 						Exportar Excel
@@ -91,7 +105,16 @@
 						<h:outputText
 							value="#{multipleClientInventory.getQuantityFor(storehouse, product)}" />
 					</p:column>
+					<p:column headerText="Dias en Bodega" rendered="#{multipleClientInventory.daysStorehouse}">
+						<h:outputText value="#{product.getStorehouseProduct(storehouse).daysInStorehouse}" />
+					</p:column>
 				</c:forEach>
+				<p:column headerText="Costo Unitario" rendered="#{multipleClientInventory.costs}" >
+					<h:outputText value="#{product.unitCost}" />
+				</p:column>
+				<p:column headerText="Costo Total" rendered="#{multipleClientInventory.costs}" >
+					<h:outputText value="#{product.unitCost}" />
+				</p:column>
 				<p:column headerText="Observaciones" visible="false">
 					<h:outputText value="" />
 				</p:column>

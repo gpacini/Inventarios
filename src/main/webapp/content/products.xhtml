@@ -99,9 +99,10 @@
 				</p:column>
 				<p:column headerText="Foto" exportable="false">
 					<p:graphicImage style="max-width:75px; max-height:80px;"
+						rendered="#{not (product.photo == null)}"
 						value="../uploadedImages/#{product.photo.directory}/#{product.photo.name}" />
 					<h:outputText value="No hay Foto"
-						rendered="#{not productsController.isPhotoSet(product) and not productsController.renderActions}" />
+						rendered="#{product.photo == null}" />
 				</p:column>
 				<p:column headerText="Movimientos" exportable="false">
 					<p:commandLink
@@ -126,28 +127,19 @@
 				<p:panel style="width:150px; float:left;"
 					id="detailsDialogPhotoPanel">
 					<p:graphicImage style="max-width:150px; max-height:200px;"
+						rendered="#{productsController.productToEdit.photo != null}"
 						value="../uploadedImages/#{productsController.productToEdit.photo.directory}/#{productsController.productToEdit.photo.name}" />
+					<h:outputText value="No hay Foto"
+						rendered="#{productsController.productToEdit.photo == null}" />
 					<p:fileUpload uploadLabel="Subir" cancelLabel="Cancelar"
-						auto="true"
-						label="Seleccionar" rendered="#{productsController.renderActions}"
+						auto="true" label="Seleccionar"
+						rendered="#{productsController.renderActions}"
 						fileUploadListener="#{photoUploadController.uploadFile}"
 						update="@form:detailsDialogPhotoPanel">
 					</p:fileUpload>
 				</p:panel>
 				<p:panel style="width:550px; float:left;">
 					<p:panelGrid>
-						<p:row>
-							<p:column>
-								<h:outputLabel value="Material" />
-							</p:column>
-							<p:column colspan="3">
-								<h:outputText rendered="#{not productsController.renderActions}"
-									value="#{productsController.productToEdit.material}" />
-								<h:inputText rendered="#{productsController.renderActions}"
-									style="width:100%;"
-									value="#{productsController.productToEdit.material}" />
-							</p:column>
-						</p:row>
 						<p:row>
 							<p:column>
 								<h:outputLabel value="Codigo" />
@@ -170,6 +162,18 @@
 							</p:column>
 						</p:row>
 						<p:row>
+							<p:column>
+								<h:outputLabel value="Material" />
+							</p:column>
+							<p:column colspan="3">
+								<h:outputText rendered="#{not productsController.renderActions}"
+									value="#{productsController.productToEdit.material}" />
+								<h:inputText rendered="#{productsController.renderActions}"
+									style="width:100%;"
+									value="#{productsController.productToEdit.material}" />
+							</p:column>
+						</p:row>
+						<p:row>
 							<p:column colspan="4">
 								<h:outputLabel value="Cantidades en Bodegas:" />
 							</p:column>
@@ -186,7 +190,7 @@
 										<h:outputText
 											rendered="#{not productsController.renderAdminActions}"
 											value="#{pbs.quantity}" />
-										<h:inputText
+										<h:inputText style="width:100%;"
 											rendered="#{productsController.renderAdminActions}"
 											value="#{pbs.quantity}" />
 									</p:column>
@@ -195,7 +199,9 @@
 									</p:column>
 									<p:column headerText="Costo"
 										rendered="#{productsController.inventory.unitCost}">
-										<h:outputText value="#{pbs.totalCost}" />
+										<h:outputText value="#{pbs.totalCost}" >
+											<f:convertNumber type="currency" currencySymbol="$" />
+										</h:outputText>
 									</p:column>
 								</p:dataTable>
 							</p:column>
@@ -206,7 +212,9 @@
 							</p:column>
 							<p:column>
 								<h:outputText rendered="#{not productsController.renderActions}"
-									value="#{productsController.productToEdit.unitCost}" />
+									value="#{productsController.productToEdit.unitCost}">
+									<f:convertNumber type="currency" currencySymbol="$" />
+								</h:outputText>
 								<h:inputText rendered="#{productsController.renderActions}"
 									value="#{productsController.productToEdit.unitCost}" />
 							</p:column>
@@ -215,7 +223,9 @@
 							</p:column>
 							<p:column>
 								<h:outputText
-									value="#{productsController.productToEdit.totalCost}" />
+									value="#{productsController.productToEdit.totalCost}">
+									<f:convertNumber type="currency" currencySymbol="$" />
+								</h:outputText>
 							</p:column>
 						</p:row>
 						<p:row rendered="#{productsController.inventory.rackPositions}">
@@ -227,25 +237,23 @@
 									value="#{productsController.productToEdit.positionsOnRackAsString}" />
 							</p:column>
 						</p:row>
-						<p:row
-							rendered="#{not productsController.newProduct and productsController.renderActions}">
-							<p:column>
+						<p:row rendered="#{productsController.renderActions}">
+							<p:column
+								rendered="#{not productsController.newProduct and productsController.renderActions}">
 								<h:outputLabel value="Razon de Cambio: " />
 							</p:column>
-							<p:column colspan="3">
-								<h:inputText value="#{productsController.changeReason}" />
-							</p:column>
-						</p:row>
-						<p:row rendered="#{productsController.renderActions}">
-							<p:column colspan="2">
-								<h:outputText value="" />
+							<p:column
+								rendered="#{not productsController.newProduct and productsController.renderActions}">
+								<h:inputText style="width:100%;"
+									value="#{productsController.changeReason}" />
 							</p:column>
 							<p:column>
-								<p:commandButton value="Guardar" update="@form:detailsDialogPhotoPanel" process="@form"
+								<p:commandButton value="Guardar"
+									update="@form:detailsDialogPhotoPanel" process="@form"
 									actionListener="#{productsController.save()}" />
 							</p:column>
 							<p:column>
-								<p:commandButton value="Cancelar" update="@none" process="@this"
+								<p:commandButton value="Salir" update="@none" process="@this"
 									onclick="PF('productDetailsDialog').hide();" />
 							</p:column>
 						</p:row>

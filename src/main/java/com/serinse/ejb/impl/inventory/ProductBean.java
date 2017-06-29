@@ -131,4 +131,23 @@ public class ProductBean extends AbstractBean<Product> {
 		return products;
 	}
 
+
+	public int count(Map<String, Object> filters) {
+		return daojpaProduct.count(filters);
+	}
+
+	public List<Product> getResultList(int first, int pageSize, String sortField, SortOrder sortOrder,
+			Map<String, Object> filters) {
+		List<Product> products = daojpaProduct.getResultList(first, pageSize, sortField, sortOrder, filters);
+		for (Product p : products) {
+			p.getQuantities().size();
+			Photo photo = photoBean.findByTableAndId(Constants.products_photos_table, p.getId());
+			if (photo != null) {
+				p.setPhoto(photo);
+			}
+			calculateProductQuantities(p);
+		}
+		return products;
+	}
+
 }

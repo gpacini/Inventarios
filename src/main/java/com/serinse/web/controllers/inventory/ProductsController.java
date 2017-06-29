@@ -2,13 +2,13 @@ package com.serinse.web.controllers.inventory;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -182,8 +182,21 @@ public class ProductsController implements Serializable {
 		if( newProduct ){
 			productToEdit.setInventory(inventory);
 			productToEdit.setActive(false);
-			if( productToEdit.getId() == null )
+			if( productToEdit.getId() == null ){
 				productBean.save(productToEdit);
+				Product temp = productBean.findByCode(productToEdit.getCode());
+				for( ProductByStorehouse pbs : temp.getQuantities() ){
+					pbs.setQuantity(new Double(productToEdit.getStorehouseQuantity(pbs.getStorehouse().getName())));
+					SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+					try {
+						pbs.setLastDate(sdf.parse("2017-01-01"));
+					} catch (ParseException e) {
+						pbs.setLastDate(new Date());
+					}
+				}
+				productBean.update(temp);
+				productToEdit = temp;
+			}
 			else{
 				productBean.update(productToEdit);
 			}
@@ -216,6 +229,8 @@ public class ProductsController implements Serializable {
 			}
 		}
 		
+		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Producto guardado exitosamente", ""));
+		
 	}
 	
 	public void addProduct(){
@@ -225,7 +240,6 @@ public class ProductsController implements Serializable {
 			pbs.setQuantity(0.0);
 			pbs.setStorehouse(sh);
 			productToEdit.getQuantities().add(pbs);
-			pbs.setProduct(productToEdit);
 		}
 		newProduct = true;
 		showProductDetail = true;
