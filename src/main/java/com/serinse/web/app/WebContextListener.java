@@ -1,7 +1,5 @@
 package com.serinse.web.app;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -23,9 +21,6 @@ import com.serinse.pers.entity.adm.Permission;
 import com.serinse.pers.entity.adm.PermissionCreator;
 import com.serinse.pers.entity.adm.Role;
 import com.serinse.pers.entity.adm.User;
-import com.serinse.pers.entity.client.Client;
-import com.serinse.pers.entity.inventory.Inventory;
-import com.serinse.pers.entity.inventory.Product;
 import com.serinse.pers.entity.inventory.Storehouse;
 import com.serinse.pers.entity.projectParameter.ProjectParameter;
 
@@ -58,29 +53,55 @@ public class WebContextListener implements ServletContextListener {
 			userBean.update(user2);
 		}
 		
-		List<Product> products = productBean.findAllById();
-		List<Storehouse> storehouses = storehouseBean.findAllById();
-		productsFor: for( Product p : products ){
-			for( Storehouse sh : storehouses ){
-				if( p.getQuantities().get(sh).getQuantity() > 0 ){
-					p.setActive(true);
-					productBean.update(p);
-					continue productsFor;
-				}
-			}
-			p.setActive( false );
-			productBean.update(p);
-		}
-		
-		List<Client> clients = clientBean.findAllById();
-		for( Client client : clients ){
-			Inventory inv = inventoryBean.findByClientId(client.getId());
-			if( inv == null ){
-				inv = new Inventory();
-				inv.setClient(client);
-				inventoryBean.save(inv);
-			}
-		}
+//		List<Product> products = productBean.findAllById();
+//		productsFor: for( Product p : products ){
+//			for( ProductByStorehouse pbs : p.getQuantities() ){
+//				if( pbs.getQuantity() > 0 ){
+//					p.setActive(true);
+//					productBean.update(p);
+//					continue productsFor;
+//				}
+//			}
+//			p.setActive( false );
+//			productBean.update(p);
+//		}
+//		
+//		for( Product p : products ){
+//			for( ProductByStorehouse pbs : p.getQuantities() ){
+//				List<Delivery> deliveries = deliveryBean.findLastByProductAndTypeAndStorehouse(p.getId(), DeliveryType.ENTREGA, pbs.getStorehouse().getId());
+//				Date newestDate = null;
+//				for( Delivery delivery : deliveries ){
+//					if( newestDate == null ){
+//						newestDate = delivery.getAskDate();
+//					} else {
+//						if( delivery.getAskDate().compareTo(newestDate) > 0 ){
+//							newestDate = delivery.getAskDate();
+//						}
+//					}
+//				}
+//				if( newestDate == null ){
+//					SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+//					try {
+//						pbs.setLastDate(sdf.parse("2017-01-15"));
+//					} catch (ParseException e) {
+//						pbs.setLastDate(new Date());
+//					}
+//				} else {
+//					pbs.setLastDate(newestDate);
+//				}
+//				productByStorehouseBean.update(pbs);
+//			}
+//		}
+//		
+//		List<Client> clients = clientBean.findAllById();
+//		for( Client client : clients ){
+//			Inventory inv = inventoryBean.findByClientId(client.getId());
+//			if( inv == null ){
+//				inv = new Inventory();
+//				inv.setClient(client);
+//				inventoryBean.save(inv);
+//			}
+//		}
 	}
 	
 	private void initializeConsecutive(ProjectParameterEnum value){

@@ -47,7 +47,6 @@
 									value="Agregar" ajax="true"
 									process="@form:productSelectionPanel @form:selectedProductsPanel"
 									update="@form:selectedProductsPanel @form:productSelectionPanel @form:actionButtons" />
-
 								<p:commandButton
 									rendered="#{uploadRequisitionController.productIsSelected(product.id)}"
 									actionListener="#{uploadRequisitionController.removeSelectedProduct(product.id)}"

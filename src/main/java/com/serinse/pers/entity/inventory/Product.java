@@ -1,12 +1,10 @@
 package com.serinse.pers.entity.inventory;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -16,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -51,61 +50,48 @@ public class Product implements Serializable{
 	@Column( name = "active")
 	private Boolean active;
 	
-	@Column( name = "row_1")
-	private String row1;
-
-	@Column( name = "row_2")
-	private String row2;
-
-	@Column( name = "row_3")
-	private String row3;
-	
 	@ElementCollection(fetch=FetchType.EAGER)
 	private Set<String> positions;
 	
-	@Transient
-	private List<ProductByStorehouse> productByStorehouses = new ArrayList<>();
-	
-	@Transient
-	private Map<Storehouse, ProductByStorehouse> quantities;
-	
-	@Transient
-	private Long photoDir;
+	@OneToMany(mappedBy="product", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+	private Set<ProductByStorehouse> quantities;
 	
 	@Transient
 	private Photo photo;
 	
+	@Transient
+	private Double totalCost;
+	
 	public Product(){
-		quantities = new HashMap<>();
+		quantities = new HashSet<>();
+		positions = new HashSet<>();
 		unitCost = 0.0;
 	}
 	
-	public String getRow(int id){
-		switch( id ){
-		case 1:
-			return getRow1();
-		case 2:
-			return getRow2();
-		case 3:
-			return getRow3();
-			
-		default:
-			return "";
+	public String getPositionsOnRackAsString(){
+		String allPositions = "";
+		for( String position : positions ){
+			allPositions += " - " + position;
 		}
+		return allPositions.replaceFirst(" - ", "");
 	}
 	
-	public void setRow(int id, String value){
-		switch( id ){
-		case 1:
-			setRow1(value);
-			return;
-		case 2:
-			setRow2(value);
-			return;
-		case 3:
-			setRow3(value);
-			return;
+	public int getStorehouseQuantity(String sh){
+		for( ProductByStorehouse pbs : quantities ){
+			if( pbs.getStorehouse().getName().equals(sh) ){
+				return pbs.getQuantity().intValue();
+			}
 		}
+		return 0;
+	}
+	
+	public ProductByStorehouse getStorehouseProduct(String sh){
+		for( ProductByStorehouse pbs : quantities ){
+			if( pbs.getStorehouse().getName().equals(sh)){
+				return pbs;
+			}
+		}
+		return null;
 	}
 
 	public Long getId() {
@@ -207,44 +193,12 @@ public class Product implements Serializable{
 		this.photo = photo;
 	}
 
-	public List<ProductByStorehouse> getProductByStorehouses() {
-		return productByStorehouses;
-	}
-
-	public void setProductByStorehouses(List<ProductByStorehouse> productByStorehouses) {
-		this.productByStorehouses = productByStorehouses;
-	}
-
-	public Map<Storehouse, ProductByStorehouse> getQuantities() {
+	public Set<ProductByStorehouse> getQuantities() {
 		return quantities;
 	}
 
-	public void setQuantities(Map<Storehouse, ProductByStorehouse> map) {
-		quantities = map;
-	}
-
-	public String getRow1() {
-		return row1;
-	}
-
-	public void setRow1(String row1) {
-		this.row1 = row1;
-	}
-
-	public String getRow2() {
-		return row2;
-	}
-
-	public void setRow2(String row2) {
-		this.row2 = row2;
-	}
-
-	public String getRow3() {
-		return row3;
-	}
-
-	public void setRow3(String row3) {
-		this.row3 = row3;
+	public void setQuantities(Set<ProductByStorehouse> quantities) {
+		this.quantities = quantities;
 	}
 
 	public Double getUnitCost() {
@@ -269,6 +223,14 @@ public class Product implements Serializable{
 
 	public void setPositions(Set<String> positions) {
 		this.positions = positions;
+	}
+
+	public Double getTotalCost() {
+		return totalCost;
+	}
+
+	public void setTotalCost(Double totalCost) {
+		this.totalCost = totalCost;
 	}
 	
 }

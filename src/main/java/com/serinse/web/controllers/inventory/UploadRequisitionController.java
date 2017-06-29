@@ -241,6 +241,8 @@ public class UploadRequisitionController implements Serializable{
 		double deliveryQuantity = product.getQuantity();
 		if( selectedType.equals(DeliveryType.DESPACHO) ){
 			deliveryQuantity = -1 * deliveryQuantity;
+		} else {
+			psh.setLastDate(psh.getLastDate().compareTo(askDate) > 0 ? psh.getLastDate() : askDate);
 		}
 		double newQuantity = 0;
 		if (psh != null) {
@@ -506,12 +508,12 @@ public class UploadRequisitionController implements Serializable{
 			this.id = product.getId();
 			this.name = product.getMaterial();
 			this.code = product.getCode();
-			this.currentQuantity = product.getQuantities().get(selectedStorehouse).getQuantity().intValue();
+			this.currentQuantity = product.getStorehouseQuantity(selectedStorehouse.getName());
 			this.product = product;
 		}
 		
 		public void changeStorehouse(Storehouse sh){
-			currentQuantity = product.getQuantities().get(sh).getQuantity().intValue();
+			currentQuantity = product.getStorehouseQuantity(sh.getName());
 		}
 		
 		public Long getId() {

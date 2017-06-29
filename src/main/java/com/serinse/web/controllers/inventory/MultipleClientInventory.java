@@ -79,8 +79,7 @@ public class MultipleClientInventory implements Serializable{
 	}
 
 	public int getQuantityFor(Storehouse sh, Product p) {
-		ProductByStorehouse pbs = p.getQuantities().get(sh);
-		return pbs.getQuantity().intValue();
+		return p.getStorehouseQuantity(sh.getName());
 	}
 	
 	public List<SelectItem> getStorehouses(){

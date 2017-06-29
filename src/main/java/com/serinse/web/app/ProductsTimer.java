@@ -9,7 +9,7 @@ import javax.inject.Inject;
 import com.serinse.ejb.impl.inventory.ProductBean;
 import com.serinse.ejb.impl.inventory.StorehouseBean;
 import com.serinse.pers.entity.inventory.Product;
-import com.serinse.pers.entity.inventory.Storehouse;
+import com.serinse.pers.entity.inventory.ProductByStorehouse;
 
 @Singleton
 public class ProductsTimer {
@@ -20,10 +20,9 @@ public class ProductsTimer {
 	@Schedule(hour="*/1")
 	public void timer(){
 		List<Product> products = productBean.findAllById();
-		List<Storehouse> storehouses = storehouseBean.findAllById();
 		productsFor: for( Product p : products ){
-			for( Storehouse sh : storehouses ){
-				if( p.getQuantities().get(sh).getQuantity() > 0 ){
+			for( ProductByStorehouse pbs : p.getQuantities() ){
+				if( pbs.getQuantity() > 0 ){
 					p.setActive(true);
 					productBean.update(p);
 					continue productsFor;

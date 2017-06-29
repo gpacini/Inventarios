@@ -93,7 +93,6 @@ public class FileUtilities {
 		if (!file.exists()) {
 			return;
 		}
-
 		if (!file.delete()) {
 			throw new FailProcessException();
 		}
@@ -130,7 +129,6 @@ public class FileUtilities {
 	public static File inputStreamToFile(InputStream inputStream, String path) throws FailProcessException {
 
 		try {
-			LOG.info("inputStream.available()=  " + inputStream.available());
 			byte[] data = IOUtils.toByteArray(inputStream);
 			File newFile = new File(path);
 			FileUtils.writeByteArrayToFile(newFile, data);
@@ -150,7 +148,6 @@ public class FileUtilities {
 	public static void createFile(InputStream inputStream, String path) throws FailProcessException {
 
 		try {
-			LOG.info("inputStream.available()=  " + inputStream.available());
 			File newFile = new File(path);
 			System.out.println(path);
 			FileUtils.copyInputStreamToFile(inputStream, newFile);

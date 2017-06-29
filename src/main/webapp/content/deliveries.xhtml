@@ -14,7 +14,7 @@
 		<p:dataTable var="delivery" value="#{deliveriesController.outDeliveries}" widgetVar="outDeliveriesTable"
 				paginator="true" rows="10" id="outDeliveriesDataTable" lazy="true"
 				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-				tableStyle="table-layout: auto;"
+				tableStyle="table-layout: auto;" sortBy="#{delivery.deliveryDate}" sortOrder="descending"
 				rowsPerPageTemplate="10,20,50,100">
 				<f:facet name="header">
 					<p:commandButton
@@ -102,7 +102,7 @@
 		<p:dataTable var="delivery" value="#{deliveriesController.inDeliveries}" widgetVar="inDeliveriesTable"
 				paginator="true" rows="10" id="inDeliveriesDataTable" lazy="true"
 				paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-				tableStyle="table-layout: auto;"
+				tableStyle="table-layout: auto;" sortBy="#{delivery.askDate}" sortOrder="descending"
 				rowsPerPageTemplate="10,20,50,100">
 				<f:facet name="header">
 

@@ -22,7 +22,6 @@
 		<class>com.serinse.pers.entity.inventory.ProductByStorehouse</class>
 		<class>com.serinse.pers.entity.inventory.UpdateLog</class>
 		<class>com.serinse.pers.entity.inventory.Requisition</class>
-		<class>com.serinse.pers.entity.inventory.customRow.CustomRowByClient</class>
 		
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 

@@ -11,7 +11,6 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.primefaces.context.RequestContext;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -32,13 +31,15 @@ public class PhotoUploadController implements Serializable {
 	@Inject
 	PhotoBean photoBean;
 	
+	@Inject
+	ProductsController productsController;
+	
 	private String serverFilePath;
 	private Product productToLink;
 	
-	private String filesPath;
-	
 	public void uploadFile(FileUploadEvent event){
 		serverFilePath = Constants.IMAGES_LOCATION;
+		productToLink = productsController.getProductToEdit();
 		if( productToLink == null ) return;
 		try {
 			UploadedFile uploadedFile = event.getFile();
@@ -48,33 +49,27 @@ public class PhotoUploadController implements Serializable {
 			String completeFilename = newDate + name;
 			FileUtilities.createDirectoryAndSaveFile(serverFilePath + "products/" , stream, completeFilename);
 			
-			Photo photo = new Photo();
+			Photo photo = photoBean.findByTableAndId(Constants.products_photos_table, productToLink.getId());
+			if( photo == null ){
+				photo = new Photo();
+			} else {
+				try{
+					FileUtilities.deleteFile(serverFilePath + "products/" + photo.getName() ); 
+				} catch(Exception e){
+					System.out.println("No se pudo eliminar la foto");
+				}
+			}
 			photo.setDirectory("products");
 			photo.setName(completeFilename);
-			photo.setFkId(productToLink.getId());
-			photo.setTable("products");
-			photo.setDescription(productToLink.getMaterial());
-			photo.setTitle(productToLink.getCode());
-			
-			photoBean.save(photo);
+			photo.setTable(Constants.products_photos_table);
 			
 			productToLink.setPhoto(photo);
-			
-			RequestContext.getCurrentInstance().execute("PF('uploadPhotoDialog').hide();");
 			
 		} catch (IOException | FailProcessException | NullPointerException e) {
 			FacesContext.getCurrentInstance().addMessage(null, 
 					new FacesMessage(FacesMessage.SEVERITY_FATAL, "No se pudo subir el archivo", ""));
 			e.printStackTrace();
 		}
-	}
-
-	public String getFilesPath() {
-		return filesPath;
-	}
-
-	public void setFilesPath(String filesPath) {
-		this.filesPath = filesPath;
 	}
 
 	public Product getProductToLink() {

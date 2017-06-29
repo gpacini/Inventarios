@@ -23,7 +23,6 @@ public class DAOJPAUpdateLog extends DAOJPABase<UpdateLog, Long> {
 	
 	public String getFilterCondition(Map<String, Object> filters, String sortField, SortOrder sortOrder) {
 		String sql = "SELECT t1 FROM UpdateLog t1";
-		System.out.println(filters.size());
 		if (filters.size() > 0) {
 			sql += " WHERE";
 			for (Map.Entry<String, Object> entry : filters.entrySet()) {
@@ -43,7 +42,6 @@ public class DAOJPAUpdateLog extends DAOJPABase<UpdateLog, Long> {
 				sql += " DESC";
 			}
 		}
-		System.out.println("SQL: " + sql);
 		return sql;
 	}
 

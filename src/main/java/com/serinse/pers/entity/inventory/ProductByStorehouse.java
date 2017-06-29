@@ -3,6 +3,7 @@ package com.serinse.pers.entity.inventory;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -40,12 +41,29 @@ public class ProductByStorehouse {
 	
 	@Column( name = "expiration_date" )
 	private Date expirationDate;
+	
+	@Column(name = "last_day")
+	private Date lastDate;
 
 	@OneToMany( mappedBy = "productByStorehouse", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Delivery> deliveries = new ArrayList<>();
 	
 	@Transient
 	private Boolean isNew = false;
+	
+	public Long getDaysInStorehouse(){
+		if( quantity > 0 ){
+			long thisDiff = (new Date()).getTime() - lastDate.getTime();
+			return TimeUnit.DAYS.convert(thisDiff, TimeUnit.MILLISECONDS);
+		} else {
+			return 0L;
+		}
+	}
+	
+	public Double getTotalCost(){
+		if( product.getUnitCost() == null ) return 0.0;
+		return product.getUnitCost() * quantity;
+	}
 
 	public Boolean getIsNew() {
 		return isNew;
@@ -101,6 +119,14 @@ public class ProductByStorehouse {
 
 	public void setDeliveries(List<Delivery> deliveries) {
 		this.deliveries = deliveries;
+	}
+
+	public Date getLastDate() {
+		return lastDate;
+	}
+
+	public void setLastDate(Date lastDate) {
+		this.lastDate = lastDate;
 	}
 
 	@Override
