@@ -20,7 +20,6 @@ import com.serinse.pers.entity.general.Photo;
 import com.serinse.pers.entity.inventory.Inventory;
 import com.serinse.pers.entity.inventory.Product;
 import com.serinse.pers.entity.inventory.ProductByStorehouse;
-import com.serinse.pers.entity.inventory.Storehouse;
 
 @Stateless
 @LocalBean
@@ -50,19 +49,6 @@ public class ProductBean extends AbstractBean<Product> {
 			calculateProductQuantities(p);
 		}
 		return all;
-	}
-
-	public void save(Product product) {
-		super.save(product);
-		List<Storehouse> storehouses = daojpaStorehouse.findAll();
-		for (Storehouse storehouse : storehouses) {
-			ProductByStorehouse pbs = new ProductByStorehouse();
-			pbs.setQuantity(0.0);
-			pbs.setProduct(product);
-			pbs.setStorehouse(storehouse);
-			pbs.setIsNew(true);
-			daojpaProductByStorehouse.save(pbs);
-		}
 	}
 
 	public Product findById(Long id) {

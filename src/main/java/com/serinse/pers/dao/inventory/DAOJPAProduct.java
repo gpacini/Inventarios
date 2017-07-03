@@ -110,6 +110,7 @@ public class DAOJPAProduct extends DAOJPABase<Product, Long> {
 					sql += " AND t1.brand != 'N/A'";
 				} else if (entry.getKey().equals("multiple_inventory")) {
 					String subSql = "AND (";
+					@SuppressWarnings("unchecked")
 					List<Long> ids = (List<Long>) entry.getValue();
 					for (Long id : ids) {
 						subSql += " OR t1.inventory.id = " + id;

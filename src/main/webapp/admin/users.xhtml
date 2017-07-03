@@ -38,6 +38,9 @@
 				<p:column headerText="Rol">
 					<h:outputText value="#{user.role.roleName}" />
 				</p:column>
+				<p:column headerText="Activo?">
+					<h:outputText value="#{user.isActive ? 'Si' : 'No'}" />
+				</p:column>
 				<p:column headerText="Acciones">
 					<p:commandButton value="Editar"
 						actionListener="#{usersController.editUser(user)}"></p:commandButton>
@@ -80,6 +83,11 @@
 						</p:column>
 						<p:column>
 							<h:outputLabel value="" />
+						</p:column>
+					</p:row>
+					<p:row>
+						<p:column>
+							<p:selectBooleanCheckbox itemLabel="Activo?" value="#{usersController.userToEdit.isActive}" />
 						</p:column>
 					</p:row>
 				</p:panelGrid>

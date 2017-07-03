@@ -5,23 +5,16 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
-import java.util.ArrayList;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.xml.bind.DatatypeConverter;
-
-import com.serinse.pers.entity.client.ClientByUser;
 
 @Entity
 @Table(name = "SER_ADM_USER")
@@ -45,6 +38,9 @@ public class User implements Serializable{
 	
 	@Column(name = "session_key", length=256, unique = true )
 	private String sessionKey;
+	
+	@Column(name = "is_active")
+	private Boolean isActive;
 	
 	@ManyToOne
 	@JoinColumn(name="id_role_fk")
@@ -101,6 +97,14 @@ public class User implements Serializable{
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
 	}
 
 	@Override

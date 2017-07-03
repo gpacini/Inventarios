@@ -6,7 +6,6 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -50,8 +49,8 @@ public class Product implements Serializable{
 	@Column( name = "active")
 	private Boolean active;
 	
-	@ElementCollection(fetch=FetchType.EAGER)
-	private Set<String> positions;
+	@Column( name = "rack_positions")
+	private String positions;
 	
 	@OneToMany(mappedBy="product", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	private Set<ProductByStorehouse> quantities;
@@ -64,16 +63,7 @@ public class Product implements Serializable{
 	
 	public Product(){
 		quantities = new HashSet<>();
-		positions = new HashSet<>();
 		unitCost = 0.0;
-	}
-	
-	public String getPositionsOnRackAsString(){
-		String allPositions = "";
-		for( String position : positions ){
-			allPositions += " - " + position;
-		}
-		return allPositions.replaceFirst(" - ", "");
 	}
 	
 	public int getStorehouseQuantity(String sh){
@@ -217,11 +207,11 @@ public class Product implements Serializable{
 		this.active = active;
 	}
 
-	public Set<String> getPositions() {
+	public String getPositions() {
 		return positions;
 	}
 
-	public void setPositions(Set<String> positions) {
+	public void setPositions(String positions) {
 		this.positions = positions;
 	}
 

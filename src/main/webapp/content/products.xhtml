@@ -93,9 +93,9 @@
 						<f:convertNumber type="currency" currencySymbol="$" />
 					</h:outputText>
 				</p:column>
-				<p:column headerText="Posicion"
+				<p:column headerText="Posiciones"
 					rendered="#{productsController.inventory.rackPositions}">
-					<h:outputText value="#{product.positionsOnRackAsString}" />
+					<h:outputText value="#{product.positions}" />
 				</p:column>
 				<p:column headerText="Foto" exportable="false">
 					<p:graphicImage style="max-width:75px; max-height:80px;"
@@ -146,9 +146,11 @@
 							</p:column>
 							<p:column>
 								<h:outputText
-									rendered="#{not productsController.renderAdminActions}"
+									rendered="#{not (productsController.renderAdminActions
+								 or (productsController.renderActions and productsController.newProduct))}"
 									value="#{productsController.productToEdit.code}" />
-								<h:inputText rendered="#{productsController.renderAdminActions}"
+								<h:inputText rendered="#{productsController.renderAdminActions
+								 or (productsController.renderActions and productsController.newProduct)}"
 									value="#{productsController.productToEdit.code}" />
 							</p:column>
 							<p:column>
@@ -233,8 +235,11 @@
 								<h:outputLabel value="Posiciones en Rack: " />
 							</p:column>
 							<p:column colspan="3">
-								<h:outputText
-									value="#{productsController.productToEdit.positionsOnRackAsString}" />
+								<h:outputText rendered="#{not productsController.renderActions}"
+									value="#{productsController.productToEdit.positions}" />
+								<h:inputText rendered="#{productsController.renderActions}"
+									value="#{productsController.productToEdit.positions}" 
+									style="width:100%;"/>
 							</p:column>
 						</p:row>
 						<p:row rendered="#{productsController.renderActions}">

@@ -25,12 +25,6 @@
 	<welcome-file-list>
 		<welcome-file>login.jsf</welcome-file>
 	</welcome-file-list>
-
-	<listener>
-		<listener-class>
-			org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap
-		</listener-class>
-	</listener>
 	
    <listener>
 	<listener-class>
@@ -77,18 +71,6 @@
 	<servlet-mapping>
    		<servlet-name>ImageServlet</servlet-name>
    		<url-pattern>/uploadedImages/*</url-pattern>
-	</servlet-mapping>
-
-	<servlet>
-		<servlet-name>resteasy-servlet</servlet-name>
-		<servlet-class>
-			org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher
-		</servlet-class>
-	</servlet>
-
-	<servlet-mapping>
-		<servlet-name>resteasy-servlet</servlet-name>
-		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
 
 </web-app>

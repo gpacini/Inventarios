@@ -1,5 +1,7 @@
 package com.serinse.web.app;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -53,6 +55,12 @@ public class WebContextListener implements ServletContextListener {
 			userBean.update(user2);
 		}
 		
+		List<User> users = userBean.findAllById();
+		for( User tempUser : users ){
+			tempUser.setIsActive(true);
+			userBean.update(tempUser);
+		}
+		
 //		List<Product> products = productBean.findAllById();
 //		productsFor: for( Product p : products ){
 //			for( ProductByStorehouse pbs : p.getQuantities() ){
@@ -103,7 +111,8 @@ public class WebContextListener implements ServletContextListener {
 //			}
 //		}
 	}
-	
+
+	@SuppressWarnings("unused")
 	private void initializeConsecutive(ProjectParameterEnum value){
 		ProjectParameter parameter = projectParameterBean.findProjectParameterByParemeterName(value);
 		if( parameter == null ){
@@ -113,7 +122,8 @@ public class WebContextListener implements ServletContextListener {
 			projectParameterBean.saveProjectParameter(parameter);
 		}
 	}
-	
+
+	@SuppressWarnings("unused")
 	private void createRole(String name, String description, int importance){
 		Role temp = roleBean.findByName(name);
 		if( temp == null ){
@@ -124,7 +134,8 @@ public class WebContextListener implements ServletContextListener {
 			roleBean.save(r);
 		}
 	}
-	
+
+	@SuppressWarnings("unused")
 	private void createStorehouse(String name, String location){
 		Storehouse temp = storehouseBean.findByName(name);
 		if( temp == null ){
@@ -135,6 +146,7 @@ public class WebContextListener implements ServletContextListener {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void createDefaultPermissions(){
 		Role chief = roleBean.findByName(Role.CHIEF_ROLE);
 		createPermission(PermissionCreator.UPLOAD_REQUISITION_PATH(), chief);

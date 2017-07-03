@@ -49,11 +49,14 @@ public class ControllerLogin implements Serializable{
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "El usuario no existe", ""));
 			return;
 		}
+		if( !userSessionBean.isUserActive(username) ){
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "El usuario no esta activo", ""));
+			return;
+		}
 		if( !userSessionBean.logInUser(username, password)){
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Contrasena Incorrecta", ""));
 			return;
 		}
-		//TODO comprobar que no sea el primer login o sino redirigirlo a cambiar la contrasena
 		try{
 			if( userSessionBean.redirect() ){
 				FacesContext.getCurrentInstance().getExternalContext().redirect(userSessionBean.removeRedirectLink());

@@ -75,6 +75,11 @@ public class UserSessionBean implements Serializable {
 		return false;
 	}
 	
+	public boolean isUserActive(String username){
+		User user = userbean.findUserByUsername(username);
+		return user.getIsActive();
+	}
+	
 	public boolean isFirstLogin(){
 		return sessionKey == null;
 	}

@@ -184,18 +184,6 @@ public class ProductsController implements Serializable {
 			productToEdit.setActive(false);
 			if( productToEdit.getId() == null ){
 				productBean.save(productToEdit);
-				Product temp = productBean.findByCode(productToEdit.getCode());
-				for( ProductByStorehouse pbs : temp.getQuantities() ){
-					pbs.setQuantity(new Double(productToEdit.getStorehouseQuantity(pbs.getStorehouse().getName())));
-					SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
-					try {
-						pbs.setLastDate(sdf.parse("2017-01-01"));
-					} catch (ParseException e) {
-						pbs.setLastDate(new Date());
-					}
-				}
-				productBean.update(temp);
-				productToEdit = temp;
 			}
 			else{
 				productBean.update(productToEdit);
@@ -239,6 +227,13 @@ public class ProductsController implements Serializable {
 			ProductByStorehouse pbs = new ProductByStorehouse();
 			pbs.setQuantity(0.0);
 			pbs.setStorehouse(sh);
+			pbs.setProduct(productToEdit);
+			SimpleDateFormat sdf = new SimpleDateFormat("YYYY-MM-dd");
+			try {
+				pbs.setLastDate(sdf.parse("2017-01-01"));
+			} catch (ParseException e) {
+				pbs.setLastDate(new Date());
+			}
 			productToEdit.getQuantities().add(pbs);
 		}
 		newProduct = true;

@@ -106,7 +106,7 @@
 							value="#{multipleClientInventory.getQuantityFor(storehouse, product)}" />
 					</p:column>
 					<p:column headerText="Dias en Bodega" rendered="#{multipleClientInventory.daysStorehouse}">
-						<h:outputText value="#{product.getStorehouseProduct(storehouse).daysInStorehouse}" />
+						<h:outputText value="#{product.getStorehouseProduct(storehouse.name).daysInStorehouse}" />
 					</p:column>
 				</c:forEach>
 				<p:column headerText="Costo Unitario" rendered="#{multipleClientInventory.costs}" >
@@ -114,6 +114,9 @@
 				</p:column>
 				<p:column headerText="Costo Total" rendered="#{multipleClientInventory.costs}" >
 					<h:outputText value="#{product.unitCost}" />
+				</p:column>
+				<p:column headerText="Posiciones" rendered="#{multipleClientInventory.rackPositions}" >
+					<h:outputText value="#{product.positions}" />
 				</p:column>
 				<p:column headerText="Observaciones" visible="false">
 					<h:outputText value="" />

@@ -66,7 +66,7 @@ public class Delivery {
 	@JoinColumn(name = "id_product_by_storehouse_fk", referencedColumnName = "ID")
 	private ProductByStorehouse productByStorehouse;
 	
-	@ManyToOne  //TODO Eliminar
+	@ManyToOne 
 	@JoinColumn(name = "id_storehouse_fk", referencedColumnName = "ID")
 	private Storehouse storehouse;
 	

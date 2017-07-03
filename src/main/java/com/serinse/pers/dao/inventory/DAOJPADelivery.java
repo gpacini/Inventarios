@@ -9,6 +9,7 @@ import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.primefaces.model.SortOrder;
 
@@ -122,9 +123,9 @@ public class DAOJPADelivery extends DAOJPABase<Delivery, Long> {
 	}
 
 	public List<Delivery> findLastByProductAndTypeAndStorehouse(Long id, DeliveryType entrega, Long storehouseId) {
-		Query query = this.em
+		TypedQuery<Delivery> query = this.em
 				.createQuery("SELECT t1 FROM Delivery t1 where t1.product.id = :id AND t1.deliveryType = :delivery "
-						+ "AND t1.storehouse.id = :storehouseId order by t1.askDate desc");
+						+ "AND t1.storehouse.id = :storehouseId order by t1.askDate desc", Delivery.class);
 		query.setParameter("id", id);
 		query.setParameter("delivery", entrega);
 		query.setParameter("storehouseId", storehouseId);
@@ -169,20 +170,9 @@ public class DAOJPADelivery extends DAOJPABase<Delivery, Long> {
 	}
 
 	public int count(Map<String, String> filters) {
-		String sql = getFilterCondition(filters, null, null);
 		Query query = this.em.createQuery(getFilterCondition(filters, null, null));
 		for (Map.Entry<String, String> entry : filters.entrySet()) {
-			if (entry.getKey().equals("date")) {
-				Date date = new Date(Date.parse(entry.getValue()));
-				Calendar c = Calendar.getInstance();
-				c.setTime(date);
-				c.add(Calendar.DATE, 5);
-				Date dateMax = c.getTime();
-				c.add(Calendar.DATE, -10);
-				Date dateMin = c.getTime();
-				query.setParameter("dateMin", dateMin);
-				query.setParameter("dateMax", dateMax);
-			} else if (entry.getKey().equals("inventory")) {
+			if (entry.getKey().equals("inventory")) {
 				query.setParameter("inventory", Long.parseLong(entry.getValue()));
 			} else if (entry.getKey().equals("product")) {
 				query.setParameter("product", Long.parseLong(entry.getValue()));
@@ -200,19 +190,9 @@ public class DAOJPADelivery extends DAOJPABase<Delivery, Long> {
 
 	public List<Delivery> getResultList(int first, int pageSize, String sortField, SortOrder sortOrder,
 			Map<String, String> filters) {
-		Query query = this.em.createQuery(getFilterCondition(filters, sortField, sortOrder));
+		TypedQuery<Delivery> query = this.em.createQuery(getFilterCondition(filters, sortField, sortOrder), Delivery.class);
 		for (Map.Entry<String, String> entry : filters.entrySet()) {
-			if (entry.getKey().equals("date")) {
-				Date date = new Date(Date.parse(entry.getValue()));
-				Calendar c = Calendar.getInstance();
-				c.setTime(date);
-				c.add(Calendar.DATE, 5);
-				Date dateMax = c.getTime();
-				c.add(Calendar.DATE, -10);
-				Date dateMin = c.getTime();
-				query.setParameter("dateMin", dateMin);
-				query.setParameter("dateMax", dateMax);
-			} else if (entry.getKey().equals("inventory")) {
+			if (entry.getKey().equals("inventory")) {
 				query.setParameter("inventory", Long.parseLong(entry.getValue()));
 			} else if (entry.getKey().equals("product")) {
 				query.setParameter("product", Long.parseLong(entry.getValue()));

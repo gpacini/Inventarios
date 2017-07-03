@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.primefaces.model.SortOrder;
 
@@ -77,7 +78,7 @@ public class DAOJPARequisition extends DAOJPABase<Requisition, Long> {
 
 	public List<Delivery> getResultList(int first, int pageSize, String sortField, SortOrder sortOrder,
 			Map<String, String> filters) {
-		Query query = this.em.createQuery(getFilterCondition(filters, sortField, sortOrder));
+		TypedQuery<Delivery> query = this.em.createQuery(getFilterCondition(filters, sortField, sortOrder), Delivery.class);
 		for (Map.Entry<String, String> entry : filters.entrySet()) {
 			if (entry.getKey().equals("inventory")) {
 				query.setParameter("inventory", Long.parseLong(entry.getValue()));

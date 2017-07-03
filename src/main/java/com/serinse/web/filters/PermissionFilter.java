@@ -25,8 +25,7 @@ public class PermissionFilter implements Filter{
 	
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
-		// TODO Auto-generated method stub
-		
+		// nada
 	}
 
 	@Override
@@ -34,8 +33,6 @@ public class PermissionFilter implements Filter{
 			throws IOException, ServletException {
 		
 		HttpServletResponse res = (HttpServletResponse) response;
-		HttpServletRequest req = (HttpServletRequest) request;
-		
 		
 		String path = ((HttpServletRequest) request).getRequestURI();
 		
@@ -59,8 +56,7 @@ public class PermissionFilter implements Filter{
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		
+		//nada
 	}
 
 }
