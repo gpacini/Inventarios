@@ -4,8 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -21,6 +23,7 @@ import org.primefaces.model.SortOrder;
 import com.serinse.common.ProjectParameterEnum;
 import com.serinse.ejb.impl.inventory.DeliveryBean;
 import com.serinse.ejb.impl.inventory.InventoryBean;
+import com.serinse.ejb.impl.inventory.LotBean;
 import com.serinse.ejb.impl.inventory.ProductBean;
 import com.serinse.ejb.impl.inventory.ProductByStorehouseBean;
 import com.serinse.ejb.impl.inventory.RequisitionBean;
@@ -29,6 +32,7 @@ import com.serinse.ejb.impl.projectParameter.ProjectParameterBean;
 import com.serinse.pers.entity.inventory.Delivery;
 import com.serinse.pers.entity.inventory.DeliveryType;
 import com.serinse.pers.entity.inventory.Inventory;
+import com.serinse.pers.entity.inventory.Lot;
 import com.serinse.pers.entity.inventory.Product;
 import com.serinse.pers.entity.inventory.ProductByStorehouse;
 import com.serinse.pers.entity.inventory.Requisition;
@@ -66,6 +70,9 @@ public class UploadRequisitionController implements Serializable{
 	@Inject
 	UserSessionBean userSessionBean;
 	
+	@Inject
+	LotBean lotBean;
+	
 	private DeliveryType selectedType;
 	private Storehouse storehouse;
 	private Inventory inventory;
@@ -90,7 +97,7 @@ public class UploadRequisitionController implements Serializable{
 	private List<ProductByStorehouse> productByStorehouseToSave;
 	private List<Delivery> deliveriesToSave;
 	
-	private List<ProductWrapper> selectedProducts;
+	private Set<ProductWrapper> selectedProducts;
 	private LazyDataModel<Product> products;
 	
 	
@@ -109,7 +116,7 @@ public class UploadRequisitionController implements Serializable{
 		inventory = inventoryBean.findById(invId);
 		renderForm = false;
 		storehouseSelected = false;
-		selectedProducts = new ArrayList<>();
+		selectedProducts = new HashSet<>();
 		if( inventory != null )
 			products = new LazyDataModel<Product> () {
 
@@ -117,23 +124,17 @@ public class UploadRequisitionController implements Serializable{
 
 			@Override
             public List<Product> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
-				Map<String,String> newMap = new HashMap<String,String>();
-				for (Map.Entry<String, Object> entry : filters.entrySet()) {
-				       if(entry.getValue() instanceof String){
-				            newMap.put(entry.getKey(), (String) entry.getValue());
-				          }
-				 }
-            	products.setRowCount(productBean.count(newMap, inventory));
-                return productBean.getResultList(first, pageSize, sortField, sortOrder, newMap, inventory);
+            	products.setRowCount(productBean.count(filters, inventory));
+                return productBean.getResultList(first, pageSize, sortField, sortOrder, filters, inventory);
             }
         };
-        products.setRowCount(productBean.count(new HashMap<String, String> (), inventory));
+        products.setRowCount(productBean.count(new HashMap<String, Object> (), inventory));
 	}
 	
 	public void save(){
-		
 		if( selectedProducts.size() == 0 ){
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Debe seleccionar al menos 1 producto", ""));
+			return;
 		}
 		
 		productByStorehouseToSave = new ArrayList<>();
@@ -186,7 +187,7 @@ public class UploadRequisitionController implements Serializable{
 		storehouse = null;
 		renderForm = false;
 		storehouseSelected = false;
-		selectedProducts = new ArrayList<>();
+		selectedProducts = new HashSet<>();
 		storehouseId = null;
 		whoAsked = "";
 		whoReceived = "";
@@ -210,8 +211,7 @@ public class UploadRequisitionController implements Serializable{
 	public void addSelectedProduct(Long id){
 		Product product = productBean.findById(id);
 		if( product == null ) return;
-		selectedProducts.add(new 
-				ProductWrapper(product, storehouse));
+		selectedProducts.add(new ProductWrapper(product, storehouse));
 	}
 	
 	private void addDeliveryToSave(ProductWrapper product){
@@ -270,11 +270,15 @@ public class UploadRequisitionController implements Serializable{
 		return true;
 	}
 	
-	public List<ProductWrapper> getSelectedProducts() {
+	public boolean isDespacho(){
+		return selectedType.equals(DeliveryType.DESPACHO);
+	}
+	
+	public Set<ProductWrapper> getSelectedProducts() {
 		return selectedProducts;
 	}
 
-	public void setSelectedProducts(List<ProductWrapper> selectedProducts) {
+	public void setSelectedProducts(Set<ProductWrapper> selectedProducts) {
 		this.selectedProducts = selectedProducts;
 	}
 
@@ -503,19 +507,51 @@ public class UploadRequisitionController implements Serializable{
 		private Integer currentQuantity;
 		private Integer quantity;
 		private Product product;
+		private Lot lot;
+		private List<Lot> lots;
 		
-		public ProductWrapper(Product product, Storehouse selectedStorehouse ){
+		public ProductWrapper(Product product, Storehouse selectedStorehouse){
 			this.id = product.getId();
 			this.name = product.getMaterial();
 			this.code = product.getCode();
 			this.currentQuantity = product.getStorehouseQuantity(selectedStorehouse.getName());
 			this.product = product;
+			this.lot = new Lot();
+			this.lots = product.getStorehouseLots(selectedStorehouse.getName());
+		}
+		
+		public void lotSelected(){
+			System.out.println("Selected lot id: " + this.lot.getId());
+			for( Lot lot : lots ){
+				System.out.println("Products lot id: " + lot.getId());
+				if( Long.compare(lot.getId(), this.lot.getId()) == 0 ){
+					this.lot = lot;
+					return;
+				}
+			}
+			this.lot = new Lot();
 		}
 		
 		public void changeStorehouse(Storehouse sh){
 			currentQuantity = product.getStorehouseQuantity(sh.getName());
+			lot = new Lot();
+			lots = product.getStorehouseLots(sh.getName());
 		}
 		
+		public List<Lot> getLots() {
+			return lots;
+		}
+
+		public void setLots(List<Lot> lots) {
+			this.lots = lots;
+		}
+
+		public Lot getLot() {
+			return lot;
+		}
+		public void setLot(Lot lot) {
+			this.lot = lot;
+		}
 		public Long getId() {
 			return id;
 		}

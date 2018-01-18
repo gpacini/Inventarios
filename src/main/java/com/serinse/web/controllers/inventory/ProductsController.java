@@ -72,8 +72,12 @@ public class ProductsController implements Serializable {
 
 	private Inventory inventory;
 	private LazyDataModel<Product> products;
+	private List<Product> filteredProducts;
 	
 	private List<Storehouse> storehouses;
+	
+	private List<String> brands;
+	private List<String> categories;
 
 	private Product productToEdit;
 	private String changeReason;
@@ -112,18 +116,12 @@ public class ProductsController implements Serializable {
 			@Override
 			public List<Product> load(int first, int pageSize, String sortField, SortOrder sortOrder,
 					Map<String, Object> filters) {
-				Map<String, String> newMap = new HashMap<String, String>();
-				for (Map.Entry<String, Object> entry : filters.entrySet()) {
-					if (entry.getValue() instanceof String) {
-						newMap.put(entry.getKey(), (String) entry.getValue());
-					}
-				}
-				newMap.put("not_available", "true");
+				filters.put("not_available", "true");
 				if( userSessionBean.getUserRole().getRoleName().equals(Role.CLIENT_ROLE) ){
-					newMap.put("active_item", "true");
+					filters.put("active_item", "true");
 				}
-				products.setRowCount(productBean.count(newMap, inventory));
-				return productBean.getResultList(first, pageSize, sortField, sortOrder, newMap, inventory);
+				products.setRowCount(productBean.count(filters, inventory));
+				return productBean.getResultList(first, pageSize, sortField, sortOrder, filters, inventory);
 			}
 			
 			@Override
@@ -146,9 +144,11 @@ public class ProductsController implements Serializable {
 			    return product != null ? product.getId() : null;
 			}
 		};
-		products.setRowCount(productBean.count(new HashMap<String, String>(), inventory));
+		products.setRowCount(productBean.count(new HashMap<String, Object>(), inventory));
 		storehouses = storehouseBean.findAllById();
 		showProductDetail = false;
+		brands = productBean.getBrandsListByInventory(inventory);
+		categories = productBean.getCategoriesListByInventory(inventory);
 	}
 	
 	public void save(){
@@ -216,9 +216,19 @@ public class ProductsController implements Serializable {
 				photoBean.save(photo);
 			}
 		}
-		
+
+		brands = productBean.getBrandsListByInventory(inventory);
+		categories = productBean.getCategoriesListByInventory(inventory);
 		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Producto guardado exitosamente", ""));
 		
+	}
+	
+	public List<String> getCategories(){
+		return categories;
+	}
+	
+	public List<String> getBrands(){
+		return brands;
 	}
 	
 	public void addProduct(){
@@ -394,6 +404,14 @@ public class ProductsController implements Serializable {
 
 	public void setNewProduct(Boolean newProduct) {
 		this.newProduct = newProduct;
+	}
+
+	public List<Product> getFilteredProducts() {
+		return filteredProducts;
+	}
+
+	public void setFilteredProducts(List<Product> filteredProducts) {
+		this.filteredProducts = filteredProducts;
 	}
 	
 }

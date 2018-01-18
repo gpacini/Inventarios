@@ -1,5 +1,6 @@
 package com.serinse.ejb.impl.inventory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -98,13 +99,32 @@ public class ProductBean extends AbstractBean<Product> {
 		}
 		product.setTotalCost(totalCost);
 	}
+	
+	public List<String> getCategoriesListByInventory(Inventory inventory){
+		List<Product> products = daojpaProduct.findUniqueCategoriesForInventoryId(inventory.getId());
+		List<String> categories = new ArrayList<String>();
+		for( Product p : products ){
+			categories.add(p.getCategory());
+		}
+		return categories;
+	}
+	
+	public List<String> getBrandsListByInventory(Inventory inventory){
+		List<Product> products = daojpaProduct.findUniqueBrandsForInventoryId(inventory.getId());
+		System.out.println("Brands: " + products.size());
+		List<String> brands = new ArrayList<String>();
+		for( Product p : products ){
+			brands.add(p.getBrand());
+		}
+		return brands;
+	}
 
-	public int count(Map<String, String> filters, Inventory inventory) {
+	public int count(Map<String, Object> filters, Inventory inventory) {
 		return daojpaProduct.count(filters, inventory);
 	}
 
 	public List<Product> getResultList(int first, int pageSize, String sortField, SortOrder sortOrder,
-			Map<String, String> filters, Inventory inventory) {
+			Map<String, Object> filters, Inventory inventory) {
 		List<Product> products = daojpaProduct.getResultList(first, pageSize, sortField, sortOrder, filters, inventory);
 		for (Product p : products) {
 			p.getQuantities().size();

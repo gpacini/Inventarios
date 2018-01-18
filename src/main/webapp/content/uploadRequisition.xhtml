@@ -41,16 +41,14 @@
 								<h:outputText value="#{product.material}" />
 							</p:column>
 							<p:column headerText="Accion">
-								<p:commandButton
+								<p:commandButton icon="ui-icon-plus"
 									rendered="#{not uploadRequisitionController.productIsSelected(product.id)}"
 									actionListener="#{uploadRequisitionController.addSelectedProduct(product.id)}"
-									value="Agregar" ajax="true"
 									process="@form:productSelectionPanel @form:selectedProductsPanel"
 									update="@form:selectedProductsPanel @form:productSelectionPanel @form:actionButtons" />
-								<p:commandButton
+								<p:commandButton icon="ui-icon-minus"
 									rendered="#{uploadRequisitionController.productIsSelected(product.id)}"
 									actionListener="#{uploadRequisitionController.removeSelectedProduct(product.id)}"
-									value="Quitar" ajax="true"
 									process="@form:productSelectionPanel @form:selectedProductsPanel"
 									update="@form:selectedProductsPanel @form:productSelectionPanel @form:actionButtons" />
 							</p:column>
@@ -204,45 +202,41 @@
 								</p:column>
 							</p:row>
 						</p:panelGrid>
-						<p:panelGrid id="selectedProductsPanel"
+						<p:panel id="selectedProductsPanel"
 							rendered="#{uploadRequisitionController.storehouseSelected}">
-							<p:row>
-								<p:column>
-									<h:outputLabel value="Codigo" />
+							<p:dataTable tableStyle="width:auto; max-width:100%;"
+								value="#{uploadRequisitionController.selectedProducts}"
+								var="product">
+								<p:column headerText="Acciones">
+									<p:commandButton icon="ui-icon-minus"
+										actionListener="#{uploadRequisitionController.removeSelectedProduct(product.id)}"
+										process="@this @form:selectedProductsPanel"
+										update="@form:selectedProductsPanel @form:productSelectionPanel" />
 								</p:column>
-								<p:column>
-									<h:outputLabel value="Producto" />
+								<p:column headerText="Codigo">
+									<h:outputText value="#{product.code}" />
 								</p:column>
-								<p:column>
-									<h:outputLabel value="Disponible" />
+								<p:column headerText="#Lote">
+									<h:inputText value="#{product.lot.lotNumber}" rendered="#{not uploadRequisitionController.isDespacho()}" />
+									<p:selectOneMenu value="#{product.lot.id}">
+										<f:selectItem itemLabel="Seleccione Uno" itemValue="0" />
+										<f:selectItems value="#{product.lots}" var="lot" itemLabel="#{lot.lotNumber}" itemValue="#{lot.id}"></f:selectItems>
+										<p:ajax process="@form:selectedProductsPanel" update="@form:selectedProductsPanel" listener="#{product.lotSelected()}" />
+									</p:selectOneMenu>
 								</p:column>
-								<p:column>
-									<h:outputLabel value="Ingrese Cantidad" />
+								<p:column headerText="Fechas">
+									Caducidad: <p:calendar value="#{product.lot.expirationDate}" rendered="#{not uploadRequisitionController.isDespacho()}" />
+										<h:outputText value="#{product.lot.expirationDate}" rendered="#{uploadRequisitionController.isDespacho()}" /> 
+									<br />
+									Produccion: <p:calendar value="#{product.lot.elaborationDate}" rendered="#{not uploadRequisitionController.isDespacho()}" />
+										<h:outputText value="#{product.lot.elaborationDate}" rendered="#{uploadRequisitionController.isDespacho()}" />
 								</p:column>
-							</p:row>
-							<ui:repeat var="product"
-								value="#{uploadRequisitionController.selectedProducts}">
-								<p:row>
-									<p:column>
-										<h:outputText value="#{product.code}" />
-									</p:column>
-									<p:column>
-										<h:outputText value="#{product.name}" />
-									</p:column>
-									<p:column>
-										<h:outputText value="#{product.currentQuantity}" />
-									</p:column>
-									<p:column>
-										<h:inputText value="#{product.quantity}" />
-									</p:column>
-									<p:column>
-										<p:commandButton actionListener="#{uploadRequisitionController.removeSelectedProduct(product.id)}"
-											value="Quitar" process="@this @form:selectedProductsPanel" 
-											update="@form:selectedProductsPanel @form:productSelectionPanel" /> 
-									</p:column>
-								</p:row>
-							</ui:repeat>
-						</p:panelGrid>
+								<p:column headerText="Cantidades">
+									En Bodega:  <h:outputText value="#{product.currentQuantity}" /><br />
+									Requisicion: <h:inputText value="#{product.quantity}" />
+								</p:column>
+							</p:dataTable>
+						</p:panel>
 						<p:panelGrid
 							rendered="#{uploadRequisitionController.storehouseSelected}"
 							id="actionButtons">

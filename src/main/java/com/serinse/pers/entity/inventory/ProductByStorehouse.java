@@ -39,11 +39,11 @@ public class ProductByStorehouse {
 	@Column( name = "quantity" )
 	private Double quantity;
 	
-	@Column( name = "expiration_date" )
-	private Date expirationDate;
-	
 	@Column(name = "last_day")
 	private Date lastDate;
+	
+	@OneToMany( mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER )
+	private List<Lot> lots = new ArrayList<>();
 
 	@OneToMany( mappedBy = "productByStorehouse", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Delivery> deliveries = new ArrayList<>();
@@ -104,13 +104,13 @@ public class ProductByStorehouse {
 	public void setQuantity(Double quantity) {
 		this.quantity = quantity;
 	}
-	
-	public Date getExpirationDate() {
-		return expirationDate;
+
+	public List<Lot> getLots() {
+		return lots;
 	}
 
-	public void setExpirationDate(Date expirationDate) {
-		this.expirationDate = expirationDate;
+	public void setLots(List<Lot> lots) {
+		this.lots = lots;
 	}
 
 	public List<Delivery> getDeliveries() {

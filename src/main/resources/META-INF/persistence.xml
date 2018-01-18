@@ -20,6 +20,7 @@
 		<class>com.serinse.pers.entity.inventory.Delivery</class>
 		<class>com.serinse.pers.entity.inventory.Storehouse</class>
 		<class>com.serinse.pers.entity.inventory.ProductByStorehouse</class>
+		<class>com.serinse.pers.entity.inventory.Lot</class>
 		<class>com.serinse.pers.entity.inventory.UpdateLog</class>
 		<class>com.serinse.pers.entity.inventory.Requisition</class>
 		

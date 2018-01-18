@@ -1,5 +1,6 @@
 package com.serinse.pers.dao.inventory;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -35,6 +37,22 @@ public class DAOJPAProduct extends DAOJPABase<Product, Long> {
 	}
 
 	@SuppressWarnings("unchecked")
+	public List<Product> findUniqueCategoriesForInventoryId(Long invId){
+		Query query = this.em.createQuery("Select t1 FROM Product t1 where t1.inventory.id = :id "
+				+ "GROUP BY t1.category ORDER BY t1.category");
+		query.setParameter("id", invId);
+		return query.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Product> findUniqueBrandsForInventoryId(Long invId){
+		Query query = this.em.createQuery("Select t1 FROM Product t1 where t1.inventory.id = :id "
+				+ "GROUP BY t1.brand ORDER BY t1.brand");
+		query.setParameter("id", invId);
+		return query.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
 	public List<Product> findByInventoryIdAndProduct(Long invId, String product) {
 		Query query = this.em.createQuery("SELECT t1 FROM Product t1 where t1.inventory.id = :id "
 				+ "AND (t1.brand LIKE :product OR t1.code LIKE :product OR t1.material LIKE :product)");
@@ -50,22 +68,27 @@ public class DAOJPAProduct extends DAOJPABase<Product, Long> {
 		return query.getResultList();
 	}
 
-	private Predicate getFilterCondition(CriteriaBuilder cb, Root<Product> myObj, Map<String, String> filters,
+	private Predicate getFilterCondition(CriteriaBuilder cb, Root<Product> myObj, Map<String, Object> filters,
 			Inventory inventory) {
 		Predicate filterCondition = cb.conjunction();
 		String wildCard = "%";
-		for (Map.Entry<String, String> filter : filters.entrySet()) {
+		for (Map.Entry<String, Object> filter : filters.entrySet()) {
 			String value = wildCard + filter.getValue() + wildCard;
-			if (filter.getKey().equalsIgnoreCase("not_available")) {
-				if (filter.getValue().equalsIgnoreCase("true")) {
+			if (filter.getKey().equalsIgnoreCase("not_available") && filter.getValue() instanceof String) {
+				if (((String) filter.getValue()).equalsIgnoreCase("true")) {
 					filterCondition = cb.and(filterCondition, cb.notEqual(myObj.get("brand"), "N/A"));
-				} else if (filter.getValue().equalsIgnoreCase("false")) {
+				} else if (((String) filter.getValue()).equalsIgnoreCase("false")) {
 					filterCondition = cb.and(filterCondition, cb.equal(myObj.get("brand"), "N/A"));
 				}
 			} else if (filter.getKey().equals("active_item")) {
 				if (filter.getValue().equals("true")) {
 					filterCondition = cb.and(filterCondition, cb.equal(myObj.get("active"), true));
 				}
+			} else if( filter.getKey().equalsIgnoreCase("brand") || filter.getKey().equalsIgnoreCase("category") ){
+				if( ((String[]) filter.getValue()).length == 0 ) continue; 
+				Path<Object> exp = myObj.get(filter.getKey());
+				Predicate predicate = exp.in(Arrays.asList((String[]) filter.getValue()));
+				filterCondition = cb.and(filterCondition, predicate);
 			} else if (!filter.getValue().equals("")) {
 				javax.persistence.criteria.Path<String> path = myObj.get(filter.getKey());
 				filterCondition = cb.and(filterCondition, cb.like(path, value));
@@ -75,7 +98,7 @@ public class DAOJPAProduct extends DAOJPABase<Product, Long> {
 		return filterCondition;
 	}
 
-	public int count(Map<String, String> filters, Inventory inventory) {
+	public int count(Map<String, Object> filters, Inventory inventory) {
 		CriteriaBuilder cb = this.em.getCriteriaBuilder();
 		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
 		Root<Product> myObj = cq.from(Product.class);
@@ -85,7 +108,7 @@ public class DAOJPAProduct extends DAOJPABase<Product, Long> {
 	}
 
 	public List<Product> getResultList(int first, int pageSize, String sortField, SortOrder sortOrder,
-			Map<String, String> filters, Inventory inventory) {
+			Map<String, Object> filters, Inventory inventory) {
 		CriteriaBuilder cb = this.em.getCriteriaBuilder();
 		CriteriaQuery<Product> cq = cb.createQuery(Product.class);
 		Root<Product> myObj = cq.from(Product.class);
@@ -102,7 +125,6 @@ public class DAOJPAProduct extends DAOJPABase<Product, Long> {
 
 	public String getFilterCondition(Map<String, Object> filters, String sortField, SortOrder sortOrder) {
 		String sql = "SELECT t1 FROM Product t1";
-		System.out.println(filters.size());
 		if (filters.size() > 0) {
 			sql += " WHERE";
 			for (Map.Entry<String, Object> entry : filters.entrySet()) {

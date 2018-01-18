@@ -2,6 +2,7 @@ package com.serinse.pers.entity.inventory;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -29,6 +30,9 @@ public class Product implements Serializable{
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "ID", insertable = true, updatable = true)
 	private Long id;
+	
+	@Column(name = "category", nullable = false)
+	private String category;
 	
 	@Column(name = "brand", nullable = false)
 	private String brand;
@@ -64,6 +68,15 @@ public class Product implements Serializable{
 	public Product(){
 		quantities = new HashSet<>();
 		unitCost = 0.0;
+	}
+	
+	public List<Lot> getStorehouseLots(String sh){
+		for( ProductByStorehouse pbs : quantities ){
+			if( pbs.getStorehouse().getName().equals(sh) ){
+				return pbs.getLots();
+			}
+		}
+		return null;
 	}
 	
 	public int getStorehouseQuantity(String sh){
@@ -222,5 +235,13 @@ public class Product implements Serializable{
 	public void setTotalCost(Double totalCost) {
 		this.totalCost = totalCost;
 	}
-	
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
 }

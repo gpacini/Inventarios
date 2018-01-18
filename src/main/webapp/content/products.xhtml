@@ -62,8 +62,24 @@
 					sortBy="#{product.code}">
 					<h:outputText value="#{product.code}" />
 				</p:column>
-				<p:column headerText="Marca" filterBy="#{product.brand}"
-					sortBy="#{product.brand}">
+				<p:column headerText="Categoria" filterMatchMode="in"
+				 filterBy="#{product.category}" 
+					sortBy="#{product.category}">
+					<f:facet name="filter">
+                	<p:selectCheckboxMenu label="Categorias" onchange="PF('productsTable').filter()" panelStyle="width:125px" scrollHeight="150">
+                    	<f:selectItems value="#{productsController.categories}" />
+                	</p:selectCheckboxMenu>
+            		</f:facet>
+					<h:outputText value="#{product.category}" />
+				</p:column>
+				<p:column headerText="Marca" filterMatchMode="in"
+				 	filterBy="#{product.brand}"
+				 	sortBy="#{product.brand}" >
+				 	<f:facet name="filter">
+                	<p:selectCheckboxMenu label="Marcas" onchange="PF('productsTable').filter()" panelStyle="width:125px" scrollHeight="150">
+                    	<f:selectItems value="#{productsController.brands}" />
+                	</p:selectCheckboxMenu>
+            		</f:facet>
 					<h:outputText value="#{product.brand}" />
 				</p:column>
 				<p:column headerText="Material" filterBy="#{product.material}"
@@ -154,6 +170,18 @@
 									value="#{productsController.productToEdit.code}" />
 							</p:column>
 							<p:column>
+								<h:outputLabel value="Categoria" />
+							</p:column>
+							<p:column>
+								<h:outputText rendered="#{not productsController.renderActions}"
+									value="#{productsController.productToEdit.category}" />
+								<h:inputText rendered="#{productsController.renderActions}"
+									style="width:100%;"
+									value="#{productsController.productToEdit.category}" />
+							</p:column>
+						</p:row>
+						<p:row>
+							<p:column>
 								<h:outputLabel value="Marca" />
 							</p:column>
 							<p:column>
@@ -162,12 +190,10 @@
 								<h:inputText rendered="#{productsController.renderActions}"
 									value="#{productsController.productToEdit.brand}" />
 							</p:column>
-						</p:row>
-						<p:row>
 							<p:column>
 								<h:outputLabel value="Material" />
 							</p:column>
-							<p:column colspan="3">
+							<p:column>
 								<h:outputText rendered="#{not productsController.renderActions}"
 									value="#{productsController.productToEdit.material}" />
 								<h:inputText rendered="#{productsController.renderActions}"
@@ -265,6 +291,7 @@
 					</p:panelGrid>
 				</p:panel>
 			</p:dialog>
+			
 		</h:form>
 	</ui:define>
 </ui:composition>
