@@ -8,7 +8,7 @@
 
 	<ui:define name="content">
 
-		<h:form>
+		<h:form id="productsForm">
 			<p:messages id="messages" showDetail="false" autoUpdate="true"
 				closable="true" />
 
@@ -218,22 +218,23 @@
 								</p:column>
 								<p:column headerText="#Lote">
 									<h:inputText value="#{product.lot.lotNumber}" rendered="#{not uploadRequisitionController.isDespacho()}" />
-									<p:selectOneMenu value="#{product.lot.id}">
-										<f:selectItem itemLabel="Seleccione Uno" itemValue="0" />
-										<f:selectItems value="#{product.lots}" var="lot" itemLabel="#{lot.lotNumber}" itemValue="#{lot.id}"></f:selectItems>
-										<p:ajax process="@form:selectedProductsPanel" update="@form:selectedProductsPanel" listener="#{product.lotSelected()}" />
+									<p:selectOneMenu value="#{product.lotId}" rendered="#{uploadRequisitionController.getRenderFor('lotSelection')}">
+										<f:selectItem itemLabel="Seleccione Uno" itemValue="-1" />
+										<f:selectItems value="#{product.lots}" var="lot" itemLabel="#{lot.lotNumber}" itemValue="#{lot.id}" />
+										<p:ajax process="@form:selectedProductsPanel" listener="#{product.lotSelected()}" />
 									</p:selectOneMenu>
 								</p:column>
 								<p:column headerText="Fechas">
 									Caducidad: <p:calendar value="#{product.lot.expirationDate}" rendered="#{not uploadRequisitionController.isDespacho()}" />
-										<h:outputText value="#{product.lot.expirationDate}" rendered="#{uploadRequisitionController.isDespacho()}" /> 
+										<h:outputText value="#{uploadRequisitionController.formatDate(product.lot.expirationDate)}" rendered="#{uploadRequisitionController.isDespacho()}" /> 
 									<br />
 									Produccion: <p:calendar value="#{product.lot.elaborationDate}" rendered="#{not uploadRequisitionController.isDespacho()}" />
-										<h:outputText value="#{product.lot.elaborationDate}" rendered="#{uploadRequisitionController.isDespacho()}" />
+										<h:outputText value="#{uploadRequisitionController.formatDate(product.lot.elaborationDate)}" rendered="#{uploadRequisitionController.isDespacho()}" />
 								</p:column>
 								<p:column headerText="Cantidades">
 									En Bodega:  <h:outputText value="#{product.currentQuantity}" /><br />
-									Requisicion: <h:inputText value="#{product.quantity}" />
+									Requisicion: <h:inputText value="#{product.quantity}" /><br />
+									Lote: <h:outputText value="#{product.lot.quantity}" />
 								</p:column>
 							</p:dataTable>
 						</p:panel>

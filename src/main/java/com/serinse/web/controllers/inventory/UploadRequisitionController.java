@@ -1,6 +1,7 @@
 package com.serinse.web.controllers.inventory;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,10 +18,13 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.primefaces.context.RequestContext;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortOrder;
 
+import com.serinse.common.FileHelpers;
 import com.serinse.common.ProjectParameterEnum;
+import com.serinse.common.helpers.FileUtilities;
 import com.serinse.ejb.impl.inventory.DeliveryBean;
 import com.serinse.ejb.impl.inventory.InventoryBean;
 import com.serinse.ejb.impl.inventory.LotBean;
@@ -42,43 +46,43 @@ import com.serinse.web.session.UserSessionBean;
 
 @Named("uploadRequisitionController")
 @ViewScoped
-public class UploadRequisitionController implements Serializable{
+public class UploadRequisitionController implements Serializable {
 
 	private static final long serialVersionUID = 1710441087030165760L;
-	
+
 	@Inject
 	InventoryBean inventoryBean;
-	
+
 	@Inject
 	StorehouseBean storehouseBean;
-	
+
 	@Inject
 	ProductByStorehouseBean productByStorehouseBean;
-	
+
 	@Inject
 	DeliveryBean deliveryBean;
-	
+
 	@Inject
 	ProjectParameterBean projectParameterBean;
-	
-	@Inject 
+
+	@Inject
 	RequisitionBean requisitionBean;
-	
+
 	@Inject
 	ProductBean productBean;
-	
+
 	@Inject
 	UserSessionBean userSessionBean;
-	
+
 	@Inject
 	LotBean lotBean;
-	
+
 	private DeliveryType selectedType;
 	private Storehouse storehouse;
 	private Inventory inventory;
-	
+
 	private Long storehouseId;
-	
+
 	private String whoAsked;
 	private String whoReceived;
 	private Date askDate;
@@ -88,19 +92,19 @@ public class UploadRequisitionController implements Serializable{
 	private String cities;
 	private String status;
 	private String physicalRequisition;
-	
+
 	private Requisition requisition;
-	
+
 	private Boolean renderForm;
 	private Boolean storehouseSelected;
-	
+
 	private List<ProductByStorehouse> productByStorehouseToSave;
 	private List<Delivery> deliveriesToSave;
-	
+	private List<Lot> lotsToSave;
+
 	private Set<ProductWrapper> selectedProducts;
 	private LazyDataModel<Product> products;
-	
-	
+
 	public Boolean getRenderForm() {
 		return renderForm;
 	}
@@ -110,79 +114,99 @@ public class UploadRequisitionController implements Serializable{
 	}
 
 	@PostConstruct
-	public void init( ){
-		Map<String, String> parameterMap = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
+	public void init() {
+		Map<String, String> parameterMap = FacesContext.getCurrentInstance().getExternalContext()
+				.getRequestParameterMap();
 		Long invId = Long.parseLong(parameterMap.get("invId"));
 		inventory = inventoryBean.findById(invId);
 		renderForm = false;
 		storehouseSelected = false;
 		selectedProducts = new HashSet<>();
-		if( inventory != null )
-			products = new LazyDataModel<Product> () {
+		if (inventory != null) {
+			products = new LazyDataModel<Product>() {
+				private static final long serialVersionUID = 82131782367821L;
 
-			private static final long serialVersionUID = 82131782367821L;
-
-			@Override
-            public List<Product> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
-            	products.setRowCount(productBean.count(filters, inventory));
-                return productBean.getResultList(first, pageSize, sortField, sortOrder, filters, inventory);
-            }
-        };
-        products.setRowCount(productBean.count(new HashMap<String, Object> (), inventory));
+				@Override
+				public List<Product> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+						Map<String, Object> filters) {
+					products.setRowCount(productBean.count(filters, inventory));
+					return productBean.getResultList(first, pageSize, sortField, sortOrder, filters, inventory);
+				}
+			};
+		}
+		products.setRowCount(productBean.count(new HashMap<String, Object>(), inventory));
 	}
-	
-	public void save(){
-		if( selectedProducts.size() == 0 ){
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Debe seleccionar al menos 1 producto", ""));
+
+	public void save() {
+		if (selectedProducts.size() == 0) {
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Debe seleccionar al menos 1 producto", ""));
 			return;
 		}
-		
+
 		productByStorehouseToSave = new ArrayList<>();
 		deliveriesToSave = new ArrayList<>();
-		for( ProductWrapper product : selectedProducts ){
-			if( !addProductToSave(product) ) return;
+		lotsToSave = new ArrayList<>();
+
+		for (ProductWrapper product : selectedProducts) {
+			if (!addProductToSave(product))
+				return;
+			if (!addLotToSave(product))
+				return;
 			addDeliveryToSave(product);
 		}
-		
+
 		requisition = new Requisition();
 		ProjectParameter consecutive = null;
 		int currentConsecutive;
 		String sConsecutive = "";
-		if( selectedType.equals(DeliveryType.DESPACHO)){
-			consecutive = projectParameterBean.findProjectParameterByParemeterName(ProjectParameterEnum.REQUISITION_EGRESS_CONSECUTIVE);
+		if (selectedType.equals(DeliveryType.DESPACHO)) {
+			consecutive = projectParameterBean
+					.findProjectParameterByParemeterName(ProjectParameterEnum.REQUISITION_EGRESS_CONSECUTIVE);
 			sConsecutive += "D";
 		} else {
-			consecutive = projectParameterBean.findProjectParameterByParemeterName(ProjectParameterEnum.REQUISITION_INGRESS_CONSECUTIVE);
+			consecutive = projectParameterBean
+					.findProjectParameterByParemeterName(ProjectParameterEnum.REQUISITION_INGRESS_CONSECUTIVE);
 			sConsecutive += "R";
 		}
-		
+
 		currentConsecutive = Integer.parseInt(consecutive.getValue()) + 1;
 		sConsecutive += String.format("%06d", currentConsecutive);
-		
+
 		requisition.setUser(userSessionBean.getUsername());
 		requisition.setConsecutive(sConsecutive);
 		requisition.setPhysicalRequisition(physicalRequisition);
 		requisitionBean.save(requisition);
-		
-		for( Delivery delivery : deliveriesToSave ){
+
+		for (Delivery delivery : deliveriesToSave) {
 			delivery.setRequisition(requisition);
 			delivery.setCreationDate(new Date());
 			deliveryBean.save(delivery);
 		}
-		for( ProductByStorehouse pbs : productByStorehouseToSave ){
-			if( pbs.getIsNew() ){
+		for (int i = 0; i < productByStorehouseToSave.size(); i++) {
+			ProductByStorehouse pbs = productByStorehouseToSave.get(i);
+			Lot lot = lotsToSave.get(i);
+			if (pbs.getIsNew()) {
 				productByStorehouseBean.save(pbs);
 			} else {
 				productByStorehouseBean.update(pbs);
 			}
 			pbs.getProduct().setActive(true);
 			productBean.update(pbs.getProduct());
+
+			lot.setProduct(pbs);
+			if (selectedType.equals(DeliveryType.DESPACHO)) {
+				lotBean.update(lot);
+			} else {
+				lotBean.save(lot);
+			}
 		}
-		
-		consecutive.setValue(currentConsecutive+"");
+
+		consecutive.setValue(currentConsecutive + "");
 		projectParameterBean.updateProjectParameter(consecutive);
-		
-		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Se creo la requisicion con codigo: " + sConsecutive, ""));
+
+		FacesContext.getCurrentInstance().addMessage(null,
+				new FacesMessage(FacesMessage.SEVERITY_INFO, "Se creo la requisicion con codigo: " + sConsecutive, ""));
 		selectedType = null;
 		storehouse = null;
 		renderForm = false;
@@ -199,7 +223,7 @@ public class UploadRequisitionController implements Serializable{
 		status = "";
 		physicalRequisition = null;
 	}
-	
+
 	public String getPhysicalRequisition() {
 		return physicalRequisition;
 	}
@@ -208,13 +232,14 @@ public class UploadRequisitionController implements Serializable{
 		this.physicalRequisition = physicalRequisition;
 	}
 
-	public void addSelectedProduct(Long id){
+	public void addSelectedProduct(Long id) {
 		Product product = productBean.findById(id);
-		if( product == null ) return;
+		if (product == null)
+			return;
 		selectedProducts.add(new ProductWrapper(product, storehouse));
 	}
-	
-	private void addDeliveryToSave(ProductWrapper product){
+
+	private void addDeliveryToSave(ProductWrapper product) {
 		Delivery delivery = new Delivery();
 		delivery.setAskDate(askDate);
 		delivery.setCities(cities == null ? "" : cities);
@@ -230,16 +255,16 @@ public class UploadRequisitionController implements Serializable{
 		delivery.setWhoReceived(whoReceived);
 		deliveriesToSave.add(delivery);
 	}
-	
-	private boolean addProductToSave(ProductWrapper product){
-		if( product.getQuantity() == null ){
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, 
+
+	private boolean addProductToSave(ProductWrapper product) {
+		if (product.getQuantity() == null) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL,
 					"Tiene que ingresar la cantidad para todos los productos.", ""));
 			return false;
 		}
 		ProductByStorehouse psh = productByStorehouseBean.findByProductAndStorehouse(product.id, storehouse.getName());
 		double deliveryQuantity = product.getQuantity();
-		if( selectedType.equals(DeliveryType.DESPACHO) ){
+		if (selectedType.equals(DeliveryType.DESPACHO)) {
 			deliveryQuantity = -1 * deliveryQuantity;
 		} else {
 			psh.setLastDate(psh.getLastDate().compareTo(askDate) > 0 ? psh.getLastDate() : askDate);
@@ -248,16 +273,16 @@ public class UploadRequisitionController implements Serializable{
 		if (psh != null) {
 			newQuantity += psh.getQuantity() + deliveryQuantity;
 			if (newQuantity < 0) {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, 
-						"El producto: " + product.name +" no tiene suficiente cantidad en bodega.", ""));
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL,
+						"El producto: " + product.name + " no tiene suficiente cantidad en bodega.", ""));
 				return false;
 			}
 			psh.setQuantity(newQuantity);
 		} else {
 			newQuantity += deliveryQuantity;
 			if (newQuantity < 0) {
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL, 
-						"El producto: " + product.name +" no tiene suficiente cantidad en bodega.", ""));
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL,
+						"El producto: " + product.name + " no tiene suficiente cantidad en bodega.", ""));
 				return false;
 			}
 			psh = new ProductByStorehouse();
@@ -269,11 +294,40 @@ public class UploadRequisitionController implements Serializable{
 		productByStorehouseToSave.add(psh);
 		return true;
 	}
-	
-	public boolean isDespacho(){
+
+	private boolean addLotToSave(ProductWrapper product) {
+		if (selectedType.equals(DeliveryType.DESPACHO)) {
+			Lot lot = lotBean.findById(product.lotId);
+			if (lot == null) {
+				FacesContext.getCurrentInstance().addMessage(null,
+						new FacesMessage(FacesMessage.SEVERITY_FATAL, "Tiene que seleccionar un lote.", ""));
+				return false;
+			}
+			if (lot.getQuantity() < product.getQuantity()) {
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL,
+						"No hay suficientes items en el lote seleccionado.", ""));
+				return false;
+			}
+			lot.setLotNumber(lot.getLotNumber().trim());
+			if(FileHelpers.isStringEmptyOrNull(lot.getLotNumber()) ){
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL,
+						"El numero de lote no puede estar en blanco.", ""));
+				return false;
+			}
+			lot.setQuantity(lot.getQuantity() - product.getQuantity());
+			lotsToSave.add(lot);
+		} else {
+			Lot lot = product.getLot();
+			lot.setQuantity(product.getQuantity());
+			lotsToSave.add(lot);
+		}
+		return true;
+	}
+
+	public boolean isDespacho() {
 		return selectedType.equals(DeliveryType.DESPACHO);
 	}
-	
+
 	public Set<ProductWrapper> getSelectedProducts() {
 		return selectedProducts;
 	}
@@ -282,38 +336,39 @@ public class UploadRequisitionController implements Serializable{
 		this.selectedProducts = selectedProducts;
 	}
 
-	public void removeSelectedProduct(Long id){
+	public void removeSelectedProduct(Long id) {
 		ProductWrapper productToRemove = null;
-		for( ProductWrapper product : selectedProducts ){
-			if( product.id.equals(id) ){
+		for (ProductWrapper product : selectedProducts) {
+			if (product.id.equals(id)) {
 				productToRemove = product;
 			}
 		}
-		if( productToRemove != null ){
+		if (productToRemove != null) {
 			selectedProducts.remove(productToRemove);
 		}
 	}
-	
-	public Boolean productIsSelected(Long id){
-		for( ProductWrapper product : selectedProducts ){
-			if( product.id.equals(id) ){
+
+	public Boolean productIsSelected(Long id) {
+		for (ProductWrapper product : selectedProducts) {
+			if (product.id.equals(id)) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
-	private void recalculateProductQuantities(){
-		if( selectedProducts.size() > 0){
-			for( ProductWrapper product : selectedProducts ){
-				ProductByStorehouse pbs = productByStorehouseBean.findByProductAndStorehouse(product.getId(), storehouse.getName());
-				if( pbs == null ){
-					product.setCurrentQuantity(0);
-				} else {
-					product.setCurrentQuantity(pbs.getQuantity().intValue());
-				}
+
+	private void recalculateProductQuantities() {
+		if (selectedProducts.size() > 0) {
+			for (ProductWrapper product : selectedProducts) {
+				product.changeStorehouse(storehouse);
 			}
 		}
+	}
+	
+	public String formatDate(Date date){
+		if( date == null ) return "";
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		return sdf.format(date);
 	}
 
 	public void setStorehouseId(Long storehouseId) {
@@ -322,19 +377,19 @@ public class UploadRequisitionController implements Serializable{
 		storehouseSelected = true;
 		recalculateProductQuantities();
 	}
-	
-	public SelectItem[] getStorehouseSelectItems(){
+
+	public SelectItem[] getStorehouseSelectItems() {
 		List<Storehouse> storehouses = storehouseBean.findAllById();
 		SelectItem[] items = new SelectItem[storehouses.size()];
-		for( int i = 0; i < storehouses.size(); i++ ){
+		for (int i = 0; i < storehouses.size(); i++) {
 			Storehouse s = storehouses.get(i);
-			SelectItem item = new SelectItem(s.getId()+"", s.getName());
+			SelectItem item = new SelectItem(s.getId() + "", s.getName());
 			items[i] = item;
 		}
 		return items;
 	}
 
-	public SelectItem[] getDeliverySelectItems(){
+	public SelectItem[] getDeliverySelectItems() {
 		SelectItem[] items = new SelectItem[2];
 		SelectItem item1 = new SelectItem(DeliveryType.DESPACHO, "Salida");
 		SelectItem item2 = new SelectItem(DeliveryType.ENTREGA, "Ingreso");
@@ -342,24 +397,25 @@ public class UploadRequisitionController implements Serializable{
 		items[1] = item2;
 		return items;
 	}
-	
-	public String getLabelFor(String fieldName){	
-		if( !renderForm && !storehouseSelected ) return "";
-		switch(fieldName){
+
+	public String getLabelFor(String fieldName) {
+		if (!renderForm && !storehouseSelected)
+			return "";
+		switch (fieldName) {
 		case "whoAsked":
-			if( selectedType.equals(DeliveryType.DESPACHO) ){
+			if (selectedType.equals(DeliveryType.DESPACHO)) {
 				return "Quien Solicito?";
 			} else {
 				return "Quien Envio?";
 			}
 		case "whoReceived":
-			if( selectedType.equals(DeliveryType.DESPACHO) ){
+			if (selectedType.equals(DeliveryType.DESPACHO)) {
 				return "Despachador";
 			} else {
 				return "Quien Recibio?";
 			}
 		case "askDate":
-			if( selectedType.equals(DeliveryType.DESPACHO) ){
+			if (selectedType.equals(DeliveryType.DESPACHO)) {
 				return "Fecha de Solicitud";
 			} else {
 				return "Fecha de Ingreso";
@@ -377,13 +433,14 @@ public class UploadRequisitionController implements Serializable{
 		default:
 			break;
 		}
-		
+
 		return "";
 	}
-	
-	public boolean getRenderFor(String fieldName){
-		if( !renderForm && !storehouseSelected ) return false;
-		switch(fieldName){
+
+	public boolean getRenderFor(String fieldName) {
+		if (!renderForm && !storehouseSelected)
+			return false;
+		switch (fieldName) {
 		case "whoAsked":
 			return true;
 		case "whoReceived":
@@ -400,13 +457,15 @@ public class UploadRequisitionController implements Serializable{
 			return selectedType.equals(DeliveryType.DESPACHO);
 		case "status":
 			return selectedType.equals(DeliveryType.DESPACHO);
+		case "lotSelection":
+			return selectedType.equals(DeliveryType.DESPACHO);
 		default:
 			break;
 		}
-		
+
 		return false;
 	}
-	
+
 	public Boolean getStorehouseSelected() {
 		return storehouseSelected;
 	}
@@ -426,7 +485,7 @@ public class UploadRequisitionController implements Serializable{
 	public Long getStorehouseId() {
 		return storehouseId;
 	}
-	
+
 	public DeliveryType getSelectedType() {
 		return selectedType;
 	}
@@ -434,15 +493,17 @@ public class UploadRequisitionController implements Serializable{
 	public void setSelectedType(DeliveryType selectedType) {
 		this.selectedType = selectedType;
 		renderForm = true;
+		recalculateProductQuantities();
 	}
-	
+
 	public Inventory getInventory() {
 		return inventory;
 	}
+
 	public void setInventory(Inventory inventory) {
 		this.inventory = inventory;
 	}
-	
+
 	public LazyDataModel<Product> getProducts() {
 		return products;
 	}
@@ -454,52 +515,68 @@ public class UploadRequisitionController implements Serializable{
 	public String getWhoAsked() {
 		return whoAsked;
 	}
+
 	public void setWhoAsked(String whoAsked) {
 		this.whoAsked = whoAsked;
 	}
+
 	public String getWhoReceived() {
 		return whoReceived;
 	}
+
 	public void setWhoReceived(String whoReceived) {
 		this.whoReceived = whoReceived;
 	}
+
 	public Date getAskDate() {
 		return askDate;
 	}
+
 	public void setAskDate(Date askDate) {
 		this.askDate = askDate;
 	}
+
 	public String getLeadTime() {
 		return leadTime;
 	}
+
 	public void setLeadTime(String leadTime) {
 		this.leadTime = leadTime;
 	}
+
 	public Date getDeliveryDate() {
 		return deliveryDate;
 	}
+
 	public void setDeliveryDate(Date deliveryDate) {
 		this.deliveryDate = deliveryDate;
 	}
+
 	public String getDeliveryPoint() {
 		return deliveryPoint;
 	}
+
 	public void setDeliveryPoint(String deliveryPoint) {
 		this.deliveryPoint = deliveryPoint;
 	}
+
 	public String getCities() {
 		return cities;
 	}
+
 	public void setCities(String cities) {
 		this.cities = cities;
 	}
+
 	public String getStatus() {
 		return status;
 	}
+
 	public void setStatus(String status) {
 		this.status = status;
 	}
 	
+
 	public class ProductWrapper {
 		private Long id;
 		private String name;
@@ -508,36 +585,41 @@ public class UploadRequisitionController implements Serializable{
 		private Integer quantity;
 		private Product product;
 		private Lot lot;
+		private Long lotId;
 		private List<Lot> lots;
-		
-		public ProductWrapper(Product product, Storehouse selectedStorehouse){
+
+		public ProductWrapper(Product product, Storehouse selectedStorehouse) {
 			this.id = product.getId();
 			this.name = product.getMaterial();
 			this.code = product.getCode();
 			this.currentQuantity = product.getStorehouseQuantity(selectedStorehouse.getName());
 			this.product = product;
-			this.lot = new Lot();
 			this.lots = product.getStorehouseLots(selectedStorehouse.getName());
+			this.lotId = -1L;
+			lotSelected();
 		}
-		
-		public void lotSelected(){
-			System.out.println("Selected lot id: " + this.lot.getId());
-			for( Lot lot : lots ){
-				System.out.println("Products lot id: " + lot.getId());
-				if( Long.compare(lot.getId(), this.lot.getId()) == 0 ){
-					this.lot = lot;
+
+		public void lotSelected() {
+			System.out.println("Selected lot id: " + this.lotId);
+			for (Lot currentLot : lots) {
+				System.out.println("Lots: " + lots.size() + " - Products lot id: " + currentLot.getId() + " Number: " + currentLot.getLotNumber());
+				if (Long.compare(currentLot.getId(), this.lotId) == 0) {
+					this.lot = currentLot;
+					RequestContext.getCurrentInstance().update("productsForm:selectedProductsPanel");
 					return;
 				}
 			}
-			this.lot = new Lot();
+			lot = new Lot();
+			lot.setId(-1L);
+			RequestContext.getCurrentInstance().update("productsForm:selectedProductsPanel");
 		}
-		
-		public void changeStorehouse(Storehouse sh){
+
+		public void changeStorehouse(Storehouse sh) {
 			currentQuantity = product.getStorehouseQuantity(sh.getName());
 			lot = new Lot();
 			lots = product.getStorehouseLots(sh.getName());
 		}
-		
+
 		public List<Lot> getLots() {
 			return lots;
 		}
@@ -549,39 +631,59 @@ public class UploadRequisitionController implements Serializable{
 		public Lot getLot() {
 			return lot;
 		}
+
 		public void setLot(Lot lot) {
 			this.lot = lot;
 		}
+
 		public Long getId() {
 			return id;
 		}
+
 		public void setId(Long id) {
 			this.id = id;
 		}
+
 		public String getName() {
 			return name;
 		}
+
 		public void setName(String name) {
 			this.name = name;
 		}
+
 		public String getCode() {
 			return code;
 		}
+
 		public void setCode(String code) {
 			this.code = code;
 		}
+
 		public Integer getCurrentQuantity() {
 			return currentQuantity;
 		}
+
 		public void setCurrentQuantity(Integer currentQuantity) {
 			this.currentQuantity = currentQuantity;
 		}
+
 		public Integer getQuantity() {
 			return quantity;
 		}
+
 		public void setQuantity(Integer quantity) {
 			this.quantity = quantity;
 		}
+
+		public Long getLotId() {
+			return lotId;
+		}
+
+		public void setLotId(Long lotId) {
+			this.lotId = lotId;
+		}
+		
 	}
 
 }
