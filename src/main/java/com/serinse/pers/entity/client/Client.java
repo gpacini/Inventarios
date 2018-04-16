@@ -1,6 +1,6 @@
 package com.serinse.pers.entity.client;
 
-import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -28,7 +28,7 @@ public class Client {
 	private String description;
 	
 	@OneToMany(fetch=FetchType.EAGER, mappedBy="client", cascade=CascadeType.ALL, orphanRemoval=true)
-	private List<ClientByUser> users;
+	private Set<ClientByUser> users;
 
 	public Long getId() {
 		return id;
@@ -54,11 +54,11 @@ public class Client {
 		this.description = description;
 	}
 
-	public List<ClientByUser> getUsers() {
+	public Set<ClientByUser> getUsers() {
 		return users;
 	}
 
-	public void setUsers(List<ClientByUser> users) {
+	public void setUsers(Set<ClientByUser> users) {
 		this.users = users;
 	}
 

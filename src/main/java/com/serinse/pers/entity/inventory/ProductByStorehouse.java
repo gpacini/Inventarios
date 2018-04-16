@@ -1,8 +1,8 @@
 package com.serinse.pers.entity.inventory;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.persistence.CascadeType;
@@ -43,10 +43,10 @@ public class ProductByStorehouse {
 	private Date lastDate;
 	
 	@OneToMany( mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER )
-	private List<Lot> lots = new ArrayList<>();
+	private Set<Lot> lots = new HashSet<>();
 
 	@OneToMany( mappedBy = "productByStorehouse", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<Delivery> deliveries = new ArrayList<>();
+	private Set<Delivery> deliveries = new HashSet<>();
 	
 	@Transient
 	private Boolean isNew = false;
@@ -105,19 +105,19 @@ public class ProductByStorehouse {
 		this.quantity = quantity;
 	}
 
-	public List<Lot> getLots() {
+	public Set<Lot> getLots() {
 		return lots;
 	}
 
-	public void setLots(List<Lot> lots) {
+	public void setLots(Set<Lot> lots) {
 		this.lots = lots;
 	}
 
-	public List<Delivery> getDeliveries() {
+	public Set<Delivery> getDeliveries() {
 		return deliveries;
 	}
 
-	public void setDeliveries(List<Delivery> deliveries) {
+	public void setDeliveries(Set<Delivery> deliveries) {
 		this.deliveries = deliveries;
 	}
 

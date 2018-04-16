@@ -3,8 +3,10 @@ package com.serinse.web.controllers.admin;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -152,7 +154,7 @@ public class ClientsController implements Serializable{
 			inventoryBean.update(inventoryToEdit);
 		}
 		
-		List<ClientByUser> usersForClient = new ArrayList<>();
+		Set<ClientByUser> usersForClient = new HashSet<>();
 		for(String username : users.getTarget()){
 			User user = userBean.findUserByUsername(username);
 			ClientByUser cbu = new ClientByUser(user, clientToEdit);

@@ -24,7 +24,6 @@ import org.primefaces.model.SortOrder;
 
 import com.serinse.common.FileHelpers;
 import com.serinse.common.ProjectParameterEnum;
-import com.serinse.common.helpers.FileUtilities;
 import com.serinse.ejb.impl.inventory.DeliveryBean;
 import com.serinse.ejb.impl.inventory.InventoryBean;
 import com.serinse.ejb.impl.inventory.LotBean;
@@ -308,16 +307,16 @@ public class UploadRequisitionController implements Serializable {
 						"No hay suficientes items en el lote seleccionado.", ""));
 				return false;
 			}
+			lot.setQuantity(lot.getQuantity() - product.getQuantity());
+			lotsToSave.add(lot);
+		} else {
+			Lot lot = product.getLot();
 			lot.setLotNumber(lot.getLotNumber().trim());
 			if(FileHelpers.isStringEmptyOrNull(lot.getLotNumber()) ){
 				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_FATAL,
 						"El numero de lote no puede estar en blanco.", ""));
 				return false;
 			}
-			lot.setQuantity(lot.getQuantity() - product.getQuantity());
-			lotsToSave.add(lot);
-		} else {
-			Lot lot = product.getLot();
 			lot.setQuantity(product.getQuantity());
 			lotsToSave.add(lot);
 		}
@@ -586,7 +585,7 @@ public class UploadRequisitionController implements Serializable {
 		private Product product;
 		private Lot lot;
 		private Long lotId;
-		private List<Lot> lots;
+		private Set<Lot> lots;
 
 		public ProductWrapper(Product product, Storehouse selectedStorehouse) {
 			this.id = product.getId();
@@ -620,11 +619,11 @@ public class UploadRequisitionController implements Serializable {
 			lots = product.getStorehouseLots(sh.getName());
 		}
 
-		public List<Lot> getLots() {
+		public Set<Lot> getLots() {
 			return lots;
 		}
 
-		public void setLots(List<Lot> lots) {
+		public void setLots(Set<Lot> lots) {
 			this.lots = lots;
 		}
 

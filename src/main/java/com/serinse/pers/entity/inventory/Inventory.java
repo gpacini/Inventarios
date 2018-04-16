@@ -38,6 +38,12 @@ public class Inventory implements Serializable{
 
 	@Column( name = "rack_positions_activated")
 	private Boolean rackPositions;
+
+	@Column( name = "sales_channel_activated")
+	private Boolean salesChannel;
+
+	@Column( name = "responsible_activated")
+	private Boolean responsible;
 	
 	@OneToMany( mappedBy = "inventory", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Product> products = new ArrayList<Product>();
@@ -128,6 +134,23 @@ public class Inventory implements Serializable{
 	public void setRackPositions(Boolean rackPositions) {
 		this.rackPositions = rackPositions;
 	}
+
+	public Boolean getSalesChannel() {
+		return salesChannel;
+	}
+
+	public void setSalesChannel(Boolean salesChannel) {
+		this.salesChannel = salesChannel;
+	}
+
+	public Boolean getResponsible() {
+		return responsible;
+	}
+
+	public void setResponsible(Boolean responsible) {
+		this.responsible = responsible;
+	}
+	
 	
 	
 }

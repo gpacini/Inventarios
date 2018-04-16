@@ -2,7 +2,6 @@ package com.serinse.pers.entity.inventory;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -56,6 +55,12 @@ public class Product implements Serializable{
 	@Column( name = "rack_positions")
 	private String positions;
 	
+	@Column( name = "responsible")
+	private String responsible;
+	
+	@Column( name = "sales_channel")
+	private String salesChannel;
+	
 	@OneToMany(mappedBy="product", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
 	private Set<ProductByStorehouse> quantities;
 	
@@ -70,7 +75,7 @@ public class Product implements Serializable{
 		unitCost = 0.0;
 	}
 	
-	public List<Lot> getStorehouseLots(String sh){
+	public Set<Lot> getStorehouseLots(String sh){
 		for( ProductByStorehouse pbs : quantities ){
 			if( pbs.getStorehouse().getName().equals(sh) ){
 				return pbs.getLots();
@@ -242,6 +247,22 @@ public class Product implements Serializable{
 
 	public void setCategory(String category) {
 		this.category = category;
+	}
+
+	public String getResponsible() {
+		return responsible;
+	}
+
+	public void setResponsible(String responsible) {
+		this.responsible = responsible;
+	}
+
+	public String getSalesChannel() {
+		return salesChannel;
+	}
+
+	public void setSalesChannel(String salesChannel) {
+		this.salesChannel = salesChannel;
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.serinse.ejb.impl.inventory;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -25,5 +26,9 @@ public class LotBean extends AbstractBean<Lot> {
 	
 	public List<Lot> findByStorehouseAndProductId(String storehouse, Long id){
 		return daojpaLot.findByStorehouseAndProductId(storehouse, id);
+	}
+	
+	public List<Lot> findAllActiveByExpirationDate(Date date){
+		return daojpaLot.findAllActiveByExpirationDate(date);
 	}
 }

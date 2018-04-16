@@ -84,6 +84,8 @@ public class WebContextListener implements ServletContextListener {
 			List<Product> products = productBean.findAllById();
 			for (Product p : products) {
 				for (ProductByStorehouse pbs : p.getQuantities()) {
+					List<Lot> lots = lotBean.findByStorehouseAndProductId(pbs.getStorehouse().getName(), pbs.getProduct().getId());
+					if( lots.size() > 0 ) continue;
 					if (pbs.getQuantity() > 0) {
 						Lot lot = new Lot();
 						lot.setLotNumber("S/N");

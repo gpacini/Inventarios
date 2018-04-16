@@ -35,6 +35,9 @@ public class Lot {
 	
 	@Column
 	private Date elaborationDate;
+	
+	@Column
+	private Boolean mailSent;
 
 	public Long getId() {
 		return id;

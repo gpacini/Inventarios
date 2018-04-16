@@ -109,6 +109,14 @@
 						<f:convertNumber type="currency" currencySymbol="$" />
 					</h:outputText>
 				</p:column>
+				<p:column headerText="Canal Ventas"
+					rendered="#{productsController.inventory.salesChannel}">
+					<h:outputText value="#{product.salesChannel}" />
+				</p:column>
+				<p:column headerText="Responsable"
+					rendered="#{productsController.inventory.responsible}">
+					<h:outputText value="#{product.responsible}" />
+				</p:column>
 				<p:column headerText="Posiciones"
 					rendered="#{productsController.inventory.rackPositions}">
 					<h:outputText value="#{product.positions}" />
@@ -138,7 +146,7 @@
 			<p:dialog widgetVar="productDetailsDialog" id="productDetailsDialog"
 				rendered="#{productsController.showProductDetail}" resizable="false"
 				header="Producto: #{productsController.productToEdit.code}"
-				onHide="hideDetails();" width="750" modal="true">
+				onHide="hideDetails();" width="850" modal="true">
 				<p:messages autoUpdate="true" closable="true" />
 				<p:panel style="width:150px; float:left;"
 					id="detailsDialogPhotoPanel">
@@ -154,7 +162,7 @@
 						update="@form:detailsDialogPhotoPanel">
 					</p:fileUpload>
 				</p:panel>
-				<p:panel style="width:550px; float:left;">
+				<p:panel style="width:670px; float:left;">
 					<p:panelGrid>
 						<p:row>
 							<p:column>
@@ -256,6 +264,29 @@
 								</h:outputText>
 							</p:column>
 						</p:row>
+						<p:row rendered="#{productsController.inventory.salesChannel or productsController.inventory.responsible}">
+							<p:column rendered="#{productsController.inventory.salesChannel}">
+								<h:outputLabel value="Canal de Ventas: " />
+							</p:column>
+							<p:column rendered="#{productsController.inventory.salesChannel}">
+								<h:outputText rendered="#{not productsController.renderActions}"
+									value="#{productsController.productToEdit.salesChannel}" />
+								<h:inputText rendered="#{productsController.renderActions}"
+									value="#{productsController.productToEdit.salesChannel}" 
+									style="width:100%;"/>
+							</p:column>
+							
+							<p:column rendered="#{productsController.inventory.responsible}">
+								<h:outputLabel value="Responsable: " />
+							</p:column>
+							<p:column rendered="#{productsController.inventory.responsible}" colspan="2">
+								<h:outputText rendered="#{not productsController.renderActions}"
+									value="#{productsController.productToEdit.responsible}" />
+								<h:inputText rendered="#{productsController.renderActions}"
+									value="#{productsController.productToEdit.responsible}" 
+									style="width:100%;"/>
+							</p:column>
+						</p:row>
 						<p:row rendered="#{productsController.inventory.rackPositions}">
 							<p:column>
 								<h:outputLabel value="Posiciones en Rack: " />
@@ -273,7 +304,7 @@
 								rendered="#{not productsController.newProduct and productsController.renderActions}">
 								<h:outputLabel value="Razon de Cambio: " />
 							</p:column>
-							<p:column
+							<p:column colspan="2"
 								rendered="#{not productsController.newProduct and productsController.renderActions}">
 								<h:inputText style="width:100%;"
 									value="#{productsController.changeReason}" />
@@ -282,8 +313,6 @@
 								<p:commandButton value="Guardar"
 									update="@form:detailsDialogPhotoPanel" process="@form"
 									actionListener="#{productsController.save()}" />
-							</p:column>
-							<p:column>
 								<p:commandButton value="Salir" update="@none" process="@this"
 									onclick="PF('productDetailsDialog').hide();" />
 							</p:column>

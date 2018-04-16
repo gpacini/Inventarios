@@ -68,7 +68,7 @@ public class FileHelpers {
 	}
 	
 	public static boolean isStringEmptyOrNull(String s){
-		if( s.equals("") || s.equals(" ") || s == null ) return true;
+		if( s.equals("") || s.equals(" ") || s == null || s.trim().equals("") ) return true;
 		return false;
 	}
 	
