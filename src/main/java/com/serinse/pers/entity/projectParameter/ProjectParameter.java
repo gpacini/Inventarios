@@ -28,6 +28,9 @@ public class ProjectParameter implements Serializable {
 	@Size(max = 1024)
 	@Column(name = "value", length = 1024, columnDefinition = "character varying (1024)")
 	private String value;
+	
+	@Column
+	private Boolean isNew;
 
 	public ProjectParameter() {
 		super();
@@ -57,11 +60,27 @@ public class ProjectParameter implements Serializable {
 		this.value = value;
 	}
 	
+	public Boolean getIsNew() {
+		return isNew;
+	}
+
+	public void setIsNew(Boolean isNew) {
+		this.isNew = isNew;
+	}
+
 	public Double getValueAsDouble(){
 		try{
 			return Double.parseDouble(value);
 		}catch(Exception e){
 			return 0.0;
+		}
+	}
+
+	public Integer getValueAsInt(){
+		try{
+			return Integer.parseInt(value);
+		}catch(Exception e){
+			return 0;
 		}
 	}
 

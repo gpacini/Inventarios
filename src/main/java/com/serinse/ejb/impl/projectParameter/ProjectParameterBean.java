@@ -36,5 +36,41 @@ public class ProjectParameterBean implements ProjectParameterBeanRemote {
 	public void updateProjectParameter(ProjectParameter projectParameter){
 		projectParameterDao.merge(projectParameter);
 	}
+	
+	public ProjectParameter findByName(String name){
+		return projectParameterDao.findByName(name);
+	}
+	
+	public ProjectParameter getOrInitialize(ProjectParameterEnum projectParameterEnum){
+		ProjectParameter pp = findProjectParameterByParemeterName(projectParameterEnum);
+		if( pp == null ){
+			pp = initializeProjectParameter(projectParameterEnum);
+		}
+		return pp;
+	}
+	
+	public ProjectParameter getOrInitialize(String name){
+		ProjectParameter pp = findByName(name);
+		if( pp == null ){
+			pp = initializeProjectParameter(name);
+		}
+		return pp;
+	}
+	
+	public ProjectParameter initializeProjectParameter(String name){
+		ProjectParameter pp = new ProjectParameter();
+		pp.setName(name);
+		pp.setValue("");
+		pp.setIsNew(true);
+		return pp;
+	}
+	
+	public ProjectParameter initializeProjectParameter(ProjectParameterEnum enumName){
+		ProjectParameter pp = new ProjectParameter();
+		pp.setName(enumName.getName());
+		pp.setValue("");
+		pp.setIsNew(true);
+		return pp;
+	}
 
 }
