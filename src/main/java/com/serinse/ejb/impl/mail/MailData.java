@@ -1,5 +1,7 @@
 package com.serinse.ejb.impl.mail;
 
+import java.util.ArrayList;
+
 public class MailData {
 
 	private String to;
@@ -10,7 +12,7 @@ public class MailData {
 	
 	private String message;
 	
-	private String cc;
+	private ArrayList<String> cc;
 	
 	private String fromName;
 	
@@ -29,12 +31,13 @@ public class MailData {
 		this.message = message;
 	}
 	
-	public String getCc() {
+	public ArrayList<String> getCC() {
 		return cc;
 	}
 
-	public void setCc(String cc) {
-		this.cc = cc;
+	public void addCC(String nCC) {
+		if ( cc == null ) cc = new ArrayList<String>();
+		cc.add(nCC);
 	}
 
 	public String getTo() {

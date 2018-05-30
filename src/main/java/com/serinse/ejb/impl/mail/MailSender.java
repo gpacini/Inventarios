@@ -1,24 +1,22 @@
 package com.serinse.ejb.impl.mail;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.apache.commons.mail.DefaultAuthenticator;
+import org.apache.commons.mail.Email;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
-import org.apache.commons.mail.Email;
 
 import com.serinse.common.ProjectParameterEnum;
 import com.serinse.ejb.impl.projectParameter.ProjectParameterBean;
 import com.serinse.pers.entity.projectParameter.ProjectParameter;
 
 @Stateless
-@LocalBean
 public class MailSender {
 
-	@EJB
+	@Inject
 	ProjectParameterBean projectParameterBean;
 	
 	private ProjectParameter user;
@@ -39,7 +37,7 @@ public class MailSender {
 	}
 	
 	public void sendMail(MailData mail) throws MailSenderException{
-		if( active.getIsNew() || active.getValueAsInt().intValue() == 0) {
+		if( active.isNew() || !active.getValue().equals("Yes")) {
 			throw new MailSenderException("Mail is not active");
 		}
 		Email email = new SimpleEmail();
@@ -52,11 +50,14 @@ public class MailSender {
 			email.setSubject(mail.getSubject());
 			email.setMsg(mail.getMessage());
 			email.addTo(mail.getTo());
-			if( mail.getCc() != null ){
-				email.addCc(mail.getCc());
+			if( mail.getCC() != null ){
+				for( String ccMail : mail.getCC() ) {
+					email.addCc(ccMail);
+				}
 			}
 			email.send();
 		} catch( EmailException e){
+			e.printStackTrace();
 			throw new MailSenderException("Couldn't send email", e.getMessage());
 		}
 	}

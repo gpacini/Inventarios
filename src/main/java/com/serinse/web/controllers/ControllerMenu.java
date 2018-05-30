@@ -29,6 +29,7 @@ public class ControllerMenu implements Serializable {
 	public static final int LOG = 4;
 	public static final int REQUISITIONS = 5;
 	public static final int MULTIPLECLIENTINVENTORY = 6;
+	public static final int MAIL = 7;
 
 	@Inject
 	UserSessionBean userSessionBean;
@@ -109,6 +110,7 @@ public class ControllerMenu implements Serializable {
 			mm.addElement(getMenuItem(USERS));
 			mm.addElement(getMenuItem(CLIENTS));
 			mm.addElement(getMenuItem(LOG));
+			mm.addElement(getMenuItem(MAIL));
 
 			return mm;
 		} else {
@@ -130,6 +132,10 @@ public class ControllerMenu implements Serializable {
 		case LOG:
 			menuItem.setValue("Registro");
 			menuItem.setUrl("/content/updatelog.jsf");
+			break;
+		case MAIL:
+			menuItem.setValue("Correo");
+			menuItem.setUrl("/admin/emailAdmin.jsf");
 			break;
 		default:
 			menuItem = null;
@@ -164,5 +170,10 @@ public class ControllerMenu implements Serializable {
 	public int getMultipleClientInventory(){
 		return MULTIPLECLIENTINVENTORY;
 	}
+
+	public int getMail() {
+		return MAIL;
+	}
+	
 
 }

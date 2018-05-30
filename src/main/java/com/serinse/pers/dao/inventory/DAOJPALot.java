@@ -34,7 +34,7 @@ public class DAOJPALot extends DAOJPABase<Lot, Long> {
 		String sql = "Select t1 from Lot t1 where t1.expirationDate < :date";
 		TypedQuery<Lot> query = this.em.createQuery(sql, Lot.class);
 		query.setParameter("date", date);
-		//query.setParameter("mailSent", false);
+		query.setParameter("mailSent", false);
 		return query.getResultList();
 	}
 }

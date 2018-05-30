@@ -1,0 +1,93 @@
+<ui:composition template="/templates/template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="content">
+		<h:form id="mainForm" >
+			<p:panel id="emailAdminPanel" header="Administracion de Correo"
+				styleClass="centered_header_title">
+				<p:messages autoUpdate="true" closable="true" />
+				<p:panelGrid id="emailAdminPanelGrid"
+					styleClass="panelGridWithoutBorder">
+					<p:row>
+						<p:column>
+							<h:outputLabel value="Activar Notificaciones por Email" />
+						</p:column>
+						<p:column>
+							<p:selectOneRadio id="active"
+								value="#{mailAdminController.active.value}"
+								label="Notificaciones Email">
+								<f:selectItem itemValue="No" itemLabel="No" />
+								<f:selectItem itemValue="Yes" itemLabel="Si" />
+								<p:ajax async="true" update="emailAdminPanel" />
+							</p:selectOneRadio>
+						</p:column>
+					</p:row>
+					<p:row rendered="#{mailAdminController.render}">
+						<p:column>
+							<h:outputLabel value="Usuario" />
+						</p:column>
+						<p:column>
+							<p:inputText id="user" value="#{mailAdminController.user.value}"
+								autocomplete="off" required="true" label="Usuario">
+							</p:inputText>
+						</p:column>
+						<p:column>
+							<h:outputLabel value="Contrasena" />
+						</p:column>
+						<p:column>
+							<p:password id="password"
+								value="#{mailAdminController.password}" autocomplete="off"
+								required="true" label="Contrasena">
+							</p:password>
+						</p:column>
+					</p:row>
+
+					<p:row rendered="#{mailAdminController.render}">
+						<p:column>
+							<h:outputLabel value="Servidor" />
+						</p:column>
+						<p:column>
+							<p:inputText id="server"
+								value="#{mailAdminController.server.value}" autocomplete="off"
+								required="true" label="Servidor">
+							</p:inputText>
+						</p:column>
+						<p:column>
+							<h:outputLabel value="Puerto" />
+						</p:column>
+						<p:column>
+							<p:inputText id="port" value="#{mailAdminController.port.value}"
+								autocomplete="off" required="true" label="Puerto">
+							</p:inputText>
+						</p:column>
+						<p:column>
+							<h:outputLabel value="SSL" />
+						</p:column>
+						<p:column>
+							<p:selectOneRadio id="ssl"
+								value="#{mailAdminController.ssl.value}" label="SSL">
+								<f:selectItem itemValue="No" itemLabel="No" />
+								<f:selectItem itemValue="Yes" itemLabel="Si" />
+							</p:selectOneRadio>
+						</p:column>
+					</p:row>
+				</p:panelGrid>
+				<p:panelGrid id="buttonsPnlGrid" styleClass="panelGridWithoutBorder"
+					columns="2">
+					<p:column>
+						<p:commandButton action="#{mailAdminController.sendTestMail}"
+							value="Enviar Correo de Prueba" update="@form" />
+					</p:column>
+					<p:column>
+						<p:commandButton action="#{mailAdminController.save}"
+							value="Guardar" update="@form" />
+					</p:column>
+				</p:panelGrid>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>

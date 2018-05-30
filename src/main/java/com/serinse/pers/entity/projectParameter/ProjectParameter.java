@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
 
@@ -28,12 +29,13 @@ public class ProjectParameter implements Serializable {
 	@Size(max = 1024)
 	@Column(name = "value", length = 1024, columnDefinition = "character varying (1024)")
 	private String value;
-	
-	@Column
-	private Boolean isNew;
+
+	@Transient
+	private boolean isNew;
 
 	public ProjectParameter() {
 		super();
+		isNew = false;
 	}
 
 	public Long getId() {
@@ -59,12 +61,12 @@ public class ProjectParameter implements Serializable {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
-	public Boolean getIsNew() {
+
+	public boolean isNew() {
 		return isNew;
 	}
 
-	public void setIsNew(Boolean isNew) {
+	public void setNew(boolean isNew) {
 		this.isNew = isNew;
 	}
 

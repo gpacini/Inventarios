@@ -86,4 +86,12 @@ public class Lot {
 		this.elaborationDate = elaborationDate;
 	}
 	
+	public Boolean getMailSent() {
+		return mailSent;
+	}
+	
+	public void setMailSent(Boolean mailSent) {
+		this.mailSent = mailSent;
+	}
+	
 }

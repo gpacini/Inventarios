@@ -61,7 +61,7 @@ public class ProjectParameterBean implements ProjectParameterBeanRemote {
 		ProjectParameter pp = new ProjectParameter();
 		pp.setName(name);
 		pp.setValue("");
-		pp.setIsNew(true);
+		pp.setNew(true);
 		return pp;
 	}
 	
@@ -69,7 +69,7 @@ public class ProjectParameterBean implements ProjectParameterBeanRemote {
 		ProjectParameter pp = new ProjectParameter();
 		pp.setName(enumName.getName());
 		pp.setValue("");
-		pp.setIsNew(true);
+		pp.setNew(true);
 		return pp;
 	}
 
