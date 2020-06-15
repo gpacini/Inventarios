@@ -191,6 +191,11 @@ public class ProductsController implements Serializable {
 		} else {
 			Product old = productBean.findById(productToEdit.getId());
 			for( ProductByStorehouse pbs : productToEdit.getQuantities() ){
+
+				if( pbs.getQuantity() == null ){
+					pbs.setQuantity(0.0);
+				}
+
 				UpdateLog log = new UpdateLog();
 				log.setAction("Actualizacion");
 				log.setCode(productToEdit.getCode());
