@@ -30,5 +30,9 @@ public class ProductByStorehouseBean extends AbstractBean<ProductByStorehouse> {
 	public ProductByStorehouse findByProductAndStorehouse(Long productId, String storehouseName){
 		return daojpaProductByStorehouse.findByProductAndStorehouse(productId, storehouseName);
 	}
+
+	public List<ProductByStorehouse> findByProductAndStorehouseWhereQuantityNone() {
+		return daojpaProductByStorehouse.findByProductAndStorehouseWhereQuantityNone();
+	}
 	
 }

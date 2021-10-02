@@ -41,5 +41,12 @@ public class DAOJPAProductByStorehouse extends DAOJPABase<ProductByStorehouse, L
 			return null;
 		}
 	}
+
+	public List<ProductByStorehouse> findByProductAndStorehouseWhereQuantityNone() {
+		Query query = this.em.createQuery("SELECT t1 FROM ProductByStorehouse t1 WHERE t1.quantity = :quantity AND t1.product.active = :active");
+		query.setParameter("quantity", 0.0);
+		query.setParameter("active", true);
+		return query.getResultList();
+	}
 	
 }

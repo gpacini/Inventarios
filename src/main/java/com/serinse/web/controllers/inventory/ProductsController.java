@@ -190,10 +190,14 @@ public class ProductsController implements Serializable {
 			}
 		} else {
 			Product old = productBean.findById(productToEdit.getId());
+			Boolean active = false;
 			for( ProductByStorehouse pbs : productToEdit.getQuantities() ){
 
 				if( pbs.getQuantity() == null ){
 					pbs.setQuantity(0.0);
+				}
+				if( pbs.getQuantity() > 0 ) {
+					active = true;
 				}
 
 				UpdateLog log = new UpdateLog();
@@ -207,6 +211,7 @@ public class ProductsController implements Serializable {
 				log.setCurrentValue(pbs.getQuantity());
 				updateLogBean.save(log);
 			}
+			productToEdit.setActive(active);
 			productBean.update(productToEdit);
 		}
 		
@@ -226,6 +231,29 @@ public class ProductsController implements Serializable {
 		categories = productBean.getCategoriesListByInventory(inventory);
 		FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Producto guardado exitosamente", ""));
 		
+	}
+
+	public void inactivateNoneProducts() {
+		System.out.println("Inactivate None Products");
+		List<ProductByStorehouse> pbss = productByStorehouseBean.findByProductAndStorehouseWhereQuantityNone();
+		System.out.println("'pbss.size'"  + pbss.size() );
+		for( Integer i = 0; i < pbss.size(); i++ ) {
+			Long productId = pbss.get(i).getProduct().getId();
+			System.out.println("productId: " + productId);
+			List<ProductByStorehouse> storehouses = productByStorehouseBean.findByProductId(productId);
+			Boolean active = false;
+			for( Integer j = 0; j < storehouses.size(); j++ ) {
+				if( storehouses.get(j).getQuantity() > 0 ) {
+					active = true;
+				}
+			}
+			System.out.println("active: " + active);
+			if( !active ) {
+				Product product = productBean.findById(productId);
+				product.setActive(false);
+				productBean.update(product);
+			}
+		}
 	}
 	
 	public List<String> getCategories(){

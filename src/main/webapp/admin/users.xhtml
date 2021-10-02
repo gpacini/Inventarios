@@ -19,6 +19,8 @@
 		}
 	</style>
 
+	<!-- SELECT storehouse.quantity, product.ID, product.brand, product.code, SUM(quantity) as total, product.active FROM SER_INVENTORY_PRODUCT_STOREHOUSE storehouse LEFT JOIN SER_INVENTORY_PRODUCT product ON product.id = storehouse.id_product_fk WHERE quantity = 0 AND product.active = 1 GROUP BY product.id; -->
+
 		<h:form id="usersForm">
 			<p:messages autoUpdate="true" closable="true"></p:messages>
 
